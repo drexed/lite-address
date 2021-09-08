@@ -221,7 +221,10 @@ module Lite
 
         def to_address(input, args)
           # strip off some punctuation and whitespace
-          input.each_value { |str| str.strip!.gsub!(/[^\w\s\-\#&]/, '') }
+          input.each_value do |string|
+            string.strip!
+            string.gsub!(/[^\w\s\-\#&]/, '')
+          end
 
           input['redundant_street_type'] = false
           if input['street'] && !input['street_type']
@@ -240,10 +243,10 @@ module Lite
           if args[:avoid_redundant_street_type]
             ['', '1', '2'].each do |suffix|
               street = input["street#{suffix}"]
-              type   = input["street_type#{suffix}"]
-              next if !street || !type
+              street_type = input["street_type#{suffix}"]
+              next if !street || !street_type
 
-              type_regexp = STREET_TYPE_MATCHES[type.downcase] # || fail "No STREET_TYPE_MATCH for #{type}"
+              type_regexp = STREET_TYPE_MATCHES[street_type.downcase]
               input.delete("street_type#{suffix}") if type_regexp.match(street)
             end
           end
