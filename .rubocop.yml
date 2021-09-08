@@ -1,13 +1,37 @@
+require:
+  - rubocop-performance
+  - rubocop-rspec
 AllCops:
-  TargetRubyVersion: 2.4
-
-Style/StringLiterals:
+  TargetRubyVersion: 3.0
+  NewCops: enable
+  DisplayCopNames: true
+  DisplayStyleGuide: true
+Gemspec/RequiredRubyVersion:
+  Enabled: false
+Layout/EmptyLinesAroundAttributeAccessor:
   Enabled: true
-  EnforcedStyle: double_quotes
-
-Style/StringLiteralsInInterpolation:
-  Enabled: true
-  EnforcedStyle: double_quotes
-
+Layout/EmptyLinesAroundBlockBody:
+  Exclude:
+    - 'spec/**/**/*'
+Layout/EmptyLinesAroundClassBody:
+  EnforcedStyle: empty_lines_except_namespace
+Layout/EmptyLinesAroundModuleBody:
+  EnforcedStyle: empty_lines_except_namespace
 Layout/LineLength:
-  Max: 120
+  Max: 100
+Layout/SpaceAroundMethodCallOperator:
+  Enabled: true
+Lint/RaiseException:
+  Enabled: true
+Lint/StructNewOverride:
+  Enabled: true
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/**/*'
+    - '*.gemspec'
+Style/ArgumentsForwarding:
+  Enabled: false
+Style/Documentation:
+  Enabled: false
+Style/ExpandPathArguments:
+  Enabled: false
