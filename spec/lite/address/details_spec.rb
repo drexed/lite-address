@@ -137,6 +137,10 @@ RSpec.describe Lite::Address::Details do
         line1: '44 Canal Center Plz Suite 500',
         line2: 'Alexandria, VA 22314'
       },
+      "11081 N State Highway 27/77, Hayward, WI 54843" => {
+        :line1 => "11081 N State Highway 27/77",
+        :line2 => "Hayward, WI 54843"
+      },
       "1 1 ST St, e San Jose CA" => {
         :line1 => "1 1st St",
         :line2 => "East San Jose, CA"
