@@ -573,7 +573,7 @@ RSpec.describe Lite::Address::US do
 
   it("comparison") do
     addr = Lite::Address::US.parse(ADDRESSES.first[0])
-    expect("1005 Gravenstein Hwy, 95472").to(eq(addr))
+    expect("1005 Gravenstein Hwy, 95472").to(eq(addr.to_s))
     expect(Lite::Address::US.parse(ADDRESSES.first[0])).to(eq(addr))
     expect(Lite::Address::US.parse(EXPECTED_FAILURES.first)).to_not(eq(addr))
     expect(nil).to_not(eq(addr))

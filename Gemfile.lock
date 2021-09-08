@@ -2,21 +2,16 @@ PATH
   remote: .
   specs:
     lite-address (1.0.0)
-      countries
 
 GEM
   remote: https://rubygems.org/
   specs:
     ast (2.4.2)
     colorize (0.8.1)
-    countries (4.0.1)
-      i18n_data (~> 0.13.0)
-      sixarm_ruby_unaccent (~> 1.1)
     diff-lcs (1.4.4)
     fasterer (0.9.0)
       colorize (~> 0.7)
       ruby_parser (>= 3.14.1)
-    i18n_data (0.13.0)
     parallel (1.20.2)
     parser (3.0.2.0)
       ast (~> 2.4.1)
@@ -60,7 +55,6 @@ GEM
     ruby_parser (3.17.0)
       sexp_processor (~> 4.15, >= 4.15.1)
     sexp_processor (4.15.3)
-    sixarm_ruby_unaccent (1.2.0)
     unicode-display_width (2.0.0)
 
 PLATFORMS
