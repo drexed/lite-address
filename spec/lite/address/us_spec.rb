@@ -277,8 +277,7 @@ RSpec.describe Lite::Address::US do
         unit: '105',
         unit_prefix: 'Ste'
       },
-      ##### pre-existing tests from ruby library
-      '2730 S Veitch St Apt 207, Arlington, VA 22206' => {
+      '2730 S Veitch St Apt 207, Arlington, VA 22206' => { #### pre-existing tests from ruby library
         number: '2730',
         postal_code: '22206',
         prefix: 'S',
@@ -340,7 +339,35 @@ RSpec.describe Lite::Address::US do
         state: 'VA',
         postal_code: '22206',
         postal_code_ext: nil
-      }
+      },
+     "1 1 ST St, e San Jose CA" => { # Addresses with a dirty ordinal indicator
+       :number => '1',
+       :street => '1st',
+       :state => 'CA',
+       :city => 'East San Jose',
+       :street_type => 'St',
+     },
+     "1 2 ND St, e San Jose CA" => {
+       :number => '1',
+       :street => '2nd',
+       :state => 'CA',
+       :city => 'East San Jose',
+       :street_type => 'St',
+     },
+     "1 3 RD St, e San Jose CA" => {
+       :number => '1',
+       :street => '3rd',
+       :state => 'CA',
+       :city => 'East San Jose',
+       :street_type => 'St',
+     },
+     "1 4 TH St, e San Jose CA" => {
+       :number => '1',
+       :street => '4th',
+       :state => 'CA',
+       :city => 'East San Jose',
+       :street_type => 'St',
+     }
     }
   end
   let(:intersections) do

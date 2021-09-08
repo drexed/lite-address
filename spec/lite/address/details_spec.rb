@@ -136,6 +136,22 @@ RSpec.describe Lite::Address::Details do
       '44 Canal Center Plaza Suite 500, Alexandria, VA 22314' => {
         line1: '44 Canal Center Plz Suite 500',
         line2: 'Alexandria, VA 22314'
+      },
+      "1 1 ST St, e San Jose CA" => {
+        :line1 => "1 1st St",
+        :line2 => "East San Jose, CA"
+      },
+      "1 2 ND St, e San Jose CA" => {
+        :line1 => "1 2nd St",
+        :line2 => "East San Jose, CA"
+      },
+      "1 3 RD St, e San Jose CA" => {
+        :line1 => "1 3rd St",
+        :line2 => "East San Jose, CA"
+      },
+      "1 4 TH St, e San Jose CA" => {
+        :line1 => "1 4th St",
+        :line2 => "East San Jose, CA"
       }
     }
   end
