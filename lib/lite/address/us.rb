@@ -127,8 +127,7 @@ module Lite
         #{UNIT_PREFIX_UNNUMBERED_REGEXP}
       /ix
 
-
-      CORNER_REGEXP  = /(?:\band\b|\bat\b|&|@)/i
+      CORNER_REGEXP = /(?:\band\b|\bat\b|&|@)/i
       FRACTION_REGEXP = %r{\d+/\d+}
       ZIP_REGEXP = /(?:(?<postal_code>\d{5})(?:-?(?<postal_code_ext>\d{4}))?)/
 
@@ -239,7 +238,7 @@ module Lite
              )
 
             type = hash['street_type'].clone
-            if type.gsub!(/s\W*$/i, '') && /\A#{STREET_TYPE_REGEXP}\z/i =~ type
+            if type.gsub!(/s\W*$/i, '') && /\A#{STREET_TYPE_REGEXP}\z/io =~ type
               hash['street_type'] = hash['street_type2'] = type
             end
           end
@@ -288,7 +287,7 @@ module Lite
           end
 
           # attempt to expand CARDINAL_TYPES prefixes on place names
-          input['city']&.gsub!(/^(#{CARDINAL_CODE_REGEXP})\s+(?=\S)/) do |match|
+          input['city']&.gsub!(/^(#{CARDINAL_CODE_REGEXP})\s+(?=\S)/o) do |match|
             "#{CARDINAL_CODES[match[0].upcase]} "
           end
 
