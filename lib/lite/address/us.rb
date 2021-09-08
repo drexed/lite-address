@@ -221,10 +221,7 @@ module Lite
 
         def to_address(input, args)
           # strip off some punctuation and whitespace
-          input.each_value do |string|
-            string.strip!
-            string.gsub!(/[^\w\s\-\#&]/, '')
-          end
+          input.each_value { |str| str.strip!.gsub!(/[^\w\s\-\#&]/, '') }
 
           input['redundant_street_type'] = false
           if input['street'] && !input['street_type']
