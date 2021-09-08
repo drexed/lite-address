@@ -367,7 +367,23 @@ RSpec.describe Lite::Address::US do
         state: 'CA',
         city: 'East San Jose',
         street_type: 'St'
-      }
+      },
+     'W12090 US HIGHWAY 10, Prescott, WI 54021' => { # Wisconsin Grid Address
+       :number=>'W12090',
+       :street=>'Us Highway 10',
+       :street_type=> 'Hwy',
+       :city=>'Prescott',
+       :state=>'WI',
+       :postal_code=>'54021',
+     },
+     'N5781 County Rd J, Ellsworth, WI 54011' => { # Redundant street name with Wisconsin Grid Address
+       :number=>'N5781',
+       :street=>'County Rd J',
+       :street_type=> 'Rd',
+       :city=>'Ellsworth',
+       :state=>'WI',
+       :postal_code=>'54011',
+     }
     }
   end
   let(:intersections) do

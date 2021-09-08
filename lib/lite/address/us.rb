@@ -48,11 +48,9 @@ module Lite
       SEP_REGEXP = /(?:\W+|\Z)/
       ZIP_REGEXP = /(?:(?<postal_code>\d{5})(?:-?(?<postal_code_ext>\d{4}))?)/
 
-      # we don't include letters in the number regex because we want to
-      # treat "42S" as "42 S" (42 South). For example,
       # Utah and Wisconsin have a more elaborate system of block numbering
       # http://en.wikipedia.org/wiki/House_number#Block_numbers
-      NUMBER_REGEXP = /(?<number>\d+-?\d*)(?=\D)/ix
+      NUMBER_REGEXP = /(?<number>(n|s|e|w)?\d+-?\d*)(?=\D)/ix
 
       # http://pe.usps.com/text/pub28/pub28c2_003.htm
       # TODO add support for those that don't require a number
