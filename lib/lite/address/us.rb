@@ -189,13 +189,11 @@ module Lite
           intersection_parts(match, hash, 'street')
           intersection_parts(match, hash, 'street_type')
 
-          if hash['street_type']
-            if !hash['street_type2'] || (hash['street_type'] == hash['street_type2'])
-              type = hash['street_type'].dup
+          if hash['street_type'] && (!hash['street_type2'] || (hash['street_type'] == hash['street_type2']))
+            type = hash['street_type'].dup
 
-              if type.gsub!(/s\W*$/i, '') && (/\A#{STREET_TYPE_REGEXP}\z/io =~ type)
-                hash['street_type'] = hash['street_type2'] = type
-              end
+            if type.gsub!(/s\W*$/i, '') && (/\A#{STREET_TYPE_REGEXP}\z/io =~ type)
+              hash['street_type'] = hash['street_type2'] = type
             end
           end
 
@@ -215,7 +213,7 @@ module Lite
 
         def intersection_parts(match, hash, part)
           parts = INTERSECTION_REGEXP.named_captures[part].map { |i| match[i.to_i] }.compact
-          hash[part]  = parts[0] if parts[0]
+          hash[part] = parts[0] if parts[0]
           hash["#{part}2"] = parts[1] if parts[1]
         end
 
@@ -224,10 +222,10 @@ module Lite
           input.each do |key, string|
             string.strip!
 
-            if key != "street"
-              string.gsub!(/[^\w\s\-\#\&]/, '')
+            if key == 'street'
+              string.gsub!(%r{[^\w\s\-\#&/]}, '')
             else
-              string.gsub!(/[^\w\s\-\#\&\/]/, '')
+              string.gsub!(/[^\w\s\-\#&]/, '')
             end
           end
 
@@ -264,8 +262,8 @@ module Lite
           # Fix cases with a dirty ordinal indicator:
           # Sometimes parcel data will have addresses like
           # "1 1ST ST" as "1 1 ST ST"
-          input['street']&.gsub!(/\A(\d+\s+st|\d+\s+nd|\d+\s+rd|\d+\s+th)\z/i) do |match|
-            input['street'].gsub(/\s+/, "")
+          input['street']&.gsub!(/\A(\d+\s+st|\d+\s+nd|\d+\s+rd|\d+\s+th)\z/i) do |_match|
+            input['street'].gsub(/\s+/, '')
           end
 
           %w[street street_type street2 street_type2 city unit_prefix].each do |k|

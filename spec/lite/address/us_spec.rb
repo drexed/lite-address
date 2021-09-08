@@ -340,34 +340,34 @@ RSpec.describe Lite::Address::US do
         postal_code: '22206',
         postal_code_ext: nil
       },
-     "1 1 ST St, e San Jose CA" => { # Addresses with a dirty ordinal indicator
-       :number => '1',
-       :street => '1st',
-       :state => 'CA',
-       :city => 'East San Jose',
-       :street_type => 'St',
-     },
-     "1 2 ND St, e San Jose CA" => {
-       :number => '1',
-       :street => '2nd',
-       :state => 'CA',
-       :city => 'East San Jose',
-       :street_type => 'St',
-     },
-     "1 3 RD St, e San Jose CA" => {
-       :number => '1',
-       :street => '3rd',
-       :state => 'CA',
-       :city => 'East San Jose',
-       :street_type => 'St',
-     },
-     "1 4 TH St, e San Jose CA" => {
-       :number => '1',
-       :street => '4th',
-       :state => 'CA',
-       :city => 'East San Jose',
-       :street_type => 'St',
-     }
+      '1 1 ST St, e San Jose CA' => { # Addresses with a dirty ordinal indicator
+        number: '1',
+        street: '1st',
+        state: 'CA',
+        city: 'East San Jose',
+        street_type: 'St'
+      },
+      '1 2 ND St, e San Jose CA' => {
+        number: '1',
+        street: '2nd',
+        state: 'CA',
+        city: 'East San Jose',
+        street_type: 'St'
+      },
+      '1 3 RD St, e San Jose CA' => {
+        number: '1',
+        street: '3rd',
+        state: 'CA',
+        city: 'East San Jose',
+        street_type: 'St'
+      },
+      '1 4 TH St, e San Jose CA' => {
+        number: '1',
+        street: '4th',
+        state: 'CA',
+        city: 'East San Jose',
+        street_type: 'St'
+      }
     }
   end
   let(:intersections) do

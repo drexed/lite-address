@@ -137,25 +137,25 @@ RSpec.describe Lite::Address::Details do
         line1: '44 Canal Center Plz Suite 500',
         line2: 'Alexandria, VA 22314'
       },
-      "11081 N State Highway 27/77, Hayward, WI 54843" => {
-        :line1 => "11081 N State Highway 27/77",
-        :line2 => "Hayward, WI 54843"
+      '11081 N State Highway 27/77, Hayward, WI 54843' => {
+        line1: '11081 N State Highway 27/77',
+        line2: 'Hayward, WI 54843'
       },
-      "1 1 ST St, e San Jose CA" => {
-        :line1 => "1 1st St",
-        :line2 => "East San Jose, CA"
+      '1 1 ST St, e San Jose CA' => {
+        line1: '1 1st St',
+        line2: 'East San Jose, CA'
       },
-      "1 2 ND St, e San Jose CA" => {
-        :line1 => "1 2nd St",
-        :line2 => "East San Jose, CA"
+      '1 2 ND St, e San Jose CA' => {
+        line1: '1 2nd St',
+        line2: 'East San Jose, CA'
       },
-      "1 3 RD St, e San Jose CA" => {
-        :line1 => "1 3rd St",
-        :line2 => "East San Jose, CA"
+      '1 3 RD St, e San Jose CA' => {
+        line1: '1 3rd St',
+        line2: 'East San Jose, CA'
       },
-      "1 4 TH St, e San Jose CA" => {
-        :line1 => "1 4th St",
-        :line2 => "East San Jose, CA"
+      '1 4 TH St, e San Jose CA' => {
+        line1: '1 4th St',
+        line2: 'East San Jose, CA'
       }
     }
   end
