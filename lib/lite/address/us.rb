@@ -6,10 +6,67 @@ module Lite
   module Address
     class US
 
+      # NOTE: List constants
+
       CARDINAL_TYPES = YAML.load_file(
         File.expand_path('maps/cardinal_types.yml', File.dirname(__FILE__))
       ).freeze
       CARDINAL_CODES = CARDINAL_TYPES.invert.freeze
+
+      STREET_TYPES = YAML.load_file(
+        File.expand_path('maps/street_types.yml', File.dirname(__FILE__))
+      ).freeze
+
+      STATE_CODES = YAML.load_file(
+        File.expand_path('maps/us/states.yml', File.dirname(__FILE__))
+      ).freeze
+      STATE_NAMES = STATE_CODES.invert.freeze
+
+      STATE_FIPS = YAML.load_file(
+        File.expand_path('maps/us/fips.yml', File.dirname(__FILE__))
+      ).freeze
+      FIPS_STATES = STATE_FIPS.invert.freeze
+
+      NORMALIZATION_MAP = {
+        'prefix' => CARDINAL_TYPES,
+        'prefix1' => CARDINAL_TYPES,
+        'prefix2' => CARDINAL_TYPES,
+        'suffix' => CARDINAL_TYPES,
+        'suffix1' => CARDINAL_TYPES,
+        'suffix2' => CARDINAL_TYPES,
+        'street_type' => STREET_TYPES,
+        'street_type1' => STREET_TYPES,
+        'street_type2' => STREET_TYPES,
+        'state' => STATE_CODES
+      }.freeze
+
+      # NOTE: Static constants
+
+      CORNER_REGEXP = /(?:\band\b|\bat\b|&|@)/i
+      FRACTION_REGEXP = %r{\d+/\d+}
+      SEP_AVOID_UNIT_REGEXP = /(?:[^\#\w]+|\Z)/
+      SEP_REGEXP = /(?:\W+|\Z)/
+      ZIP_REGEXP = /(?:(?<postal_code>\d{5})(?:-?(?<postal_code_ext>\d{4}))?)/
+
+      # we don't include letters in the number regex because we want to
+      # treat "42S" as "42 S" (42 South). For example,
+      # Utah and Wisconsin have a more elaborate system of block numbering
+      # http://en.wikipedia.org/wiki/House_number#Block_numbers
+      NUMBER_REGEXP = /(?<number>\d+-?\d*)(?=\D)/ix
+
+      # http://pe.usps.com/text/pub28/pub28c2_003.htm
+      # TODO add support for those that don't require a number
+      # TODO map to standard names/abbreviations
+      UNIT_PREFIX_NUMBERED_REGEXP = /(?<unit_prefix>
+        su?i?te|p\W*[om]\W*b(?:ox)?|(?:ap|dep)(?:ar)?t(?:me?nt)?|ro*m|flo*r?|uni?t|bu?i?ldi?n?g
+        |ha?nga?r|lo?t|pier|slip|spa?ce?|stop|tra?i?le?r|box
+      )(?![a-z])/ix
+      UNIT_PREFIX_UNNUMBERED_REGEXP = /(?<unit_prefix>
+        ba?se?me?n?t|fro?nt|lo?bby|lowe?r|off?i?ce?|pe?n?t?ho?u?s?e?|rear|side|uppe?r
+      )\b/ix
+
+      # NOTE: Dynamic constants
+
       CARDINAL_CODE_REGEXP = Regexp.new(
         CARDINAL_CODES.keys.join('|'),
         Regexp::IGNORECASE
@@ -23,10 +80,16 @@ module Lite
         ).join('|'),
         Regexp::IGNORECASE
       ).freeze
-
-      STREET_TYPES = YAML.load_file(
-        File.expand_path('maps/street_types.yml', File.dirname(__FILE__))
+      STATE_REGEXP = Regexp.new(
+        '\b' + STATE_CODES.flatten.map { |code| Regexp.quote(code) }.join('|') + '\b',
+        Regexp::IGNORECASE
       ).freeze
+      CITY_AND_STATE_REGEXP = /(?:
+        (?<city> [^\d,]+?)\W+(?<state> #{STATE_REGEXP})
+      )/ix
+      PLACE_REGEXP = /
+        (?:#{CITY_AND_STATE_REGEXP}\W*)? (?:#{ZIP_REGEXP})?
+      /ix
       STREET_TYPES_LIST = STREET_TYPES.each_with_object({}) do |(key, val), hash|
         hash[key] = true
         hash[val] = true
@@ -42,11 +105,11 @@ module Lite
         (?:
           # NOTE: that expressions like [^,]+ may scan more than you expect
           # special case for addresses like 100 South Street
-          (?:(?<street> #{CARDINAL_TYPE_REGEXP})\W+
-             (?<street_type> #{STREET_TYPE_REGEXP})\b
+          (?:
+            (?<street> #{CARDINAL_TYPE_REGEXP})\W+
+            (?<street_type> #{STREET_TYPE_REGEXP})\b
           )
-          |
-          (?:(?<prefix> #{CARDINAL_TYPE_REGEXP})\W+)?
+          | (?:(?<prefix> #{CARDINAL_TYPE_REGEXP})\W+)?
           (?:
             (?<street> [^,]*\d)
             (?:[^\w,]* (?<suffix> #{CARDINAL_TYPE_REGEXP})\b)
@@ -61,145 +124,50 @@ module Lite
           )
         )
       /ix
-
-      STATE_CODES = YAML.load_file(
-        File.expand_path('maps/us/states.yml', File.dirname(__FILE__))
-      ).freeze
-      STATE_NAMES = STATE_CODES.invert.freeze
-      STATE_REGEXP = Regexp.new(
-        '\b' + STATE_CODES.flatten.map { |code| Regexp.quote(code) }.join('|') + '\b',
-        Regexp::IGNORECASE
-      ).freeze
-
-      STATE_FIPS = YAML.load_file(
-        File.expand_path('maps/us/fips.yml', File.dirname(__FILE__))
-      ).freeze
-      FIPS_STATES = STATE_FIPS.invert.freeze
-
-      # we don't include letters in the number regex because we want to
-      # treat "42S" as "42 S" (42 South). For example,
-      # Utah and Wisconsin have a more elaborate system of block numbering
-      # http://en.wikipedia.org/wiki/House_number#Block_numbers
-      NUMBER_REGEXP = /(?<number>\d+-?\d*)(?=\D)/ix
-
-      # http://pe.usps.com/text/pub28/pub28c2_003.htm
-      # TODO add support for those that don't require a number
-      # TODO map to standard names/abbreviations
-      UNIT_PREFIX_NUMBERED_REGEXP = /
-        (?<unit_prefix>
-          su?i?te
-          |p\W*[om]\W*b(?:ox)?
-          |(?:ap|dep)(?:ar)?t(?:me?nt)?
-          |ro*m
-          |flo*r?
-          |uni?t
-          |bu?i?ldi?n?g
-          |ha?nga?r
-          |lo?t
-          |pier
-          |slip
-          |spa?ce?
-          |stop
-          |tra?i?le?r
-          |box)(?![a-z])
-      /ix
-      UNIT_PREFIX_UNNUMBERED_REGEXP = /
-        (?<unit_prefix>
-          ba?se?me?n?t
-          |fro?nt
-          |lo?bby
-          |lowe?r
-          |off?i?ce?
-          |pe?n?t?ho?u?s?e?
-          |rear
-          |side
-          |uppe?r
-          )\b
-      /ix
       UNIT_REGEXP = /
         (?:
-            (?: (?:#{UNIT_PREFIX_NUMBERED_REGEXP} \W*)
-                | (?<unit_prefix> \#)\W*
-            )
-            (?<unit> [\w-]+)
-        )
-        |
-        #{UNIT_PREFIX_UNNUMBERED_REGEXP}
+          (?:
+            (?:#{UNIT_PREFIX_NUMBERED_REGEXP} \W*)
+            | (?<unit_prefix> \#)\W*
+          )
+          (?<unit> [\w-]+)
+        ) | #{UNIT_PREFIX_UNNUMBERED_REGEXP}
       /ix
-
-      CORNER_REGEXP = /(?:\band\b|\bat\b|&|@)/i
-      FRACTION_REGEXP = %r{\d+/\d+}
-      ZIP_REGEXP = /(?:(?<postal_code>\d{5})(?:-?(?<postal_code_ext>\d{4}))?)/
-
-      NORMALIZE_MAP = {
-        'prefix' => CARDINAL_TYPES,
-        'prefix1' => CARDINAL_TYPES,
-        'prefix2' => CARDINAL_TYPES,
-        'suffix' => CARDINAL_TYPES,
-        'suffix1' => CARDINAL_TYPES,
-        'suffix2' => CARDINAL_TYPES,
-        'street_type' => STREET_TYPES,
-        'street_type1' => STREET_TYPES,
-        'street_type2' => STREET_TYPES,
-        'state' => STATE_CODES
-      }.freeze
-
-      CITY_AND_STATE_REGEXP = /
-        (?:
-            (?<city> [^\d,]+?)\W+
-            (?<state> #{STATE_REGEXP})
-        )
-      /ix
-
-      PLACE_REGEXP = /
-        (?:#{CITY_AND_STATE_REGEXP}\W*)? (?:#{ZIP_REGEXP})?
-      /ix
-
-      ADDRESS_REGEXP = /
-        \A
-        [^\w\x23]*    # skip non-word chars except # (eg unit)
-        #{NUMBER_REGEXP} \W*
-        (?:#{FRACTION_REGEXP}\W*)?
+      INTERSECTION_REGEXP = /\A\W*
+        #{STREET_REGEXP}\W*?
+        \s+#{CORNER_REGEXP}\s+
         #{STREET_REGEXP}\W+
-        (?:#{UNIT_REGEXP}\W+)?
         #{PLACE_REGEXP}
-        \W*         # require on non-word chars at end
-        \z           # right up to end of string
+        \W*\z
       /ix
-
-      SEP_REGEXP = /(?:\W+|\Z)/
-      SEP_AVOID_UNIT_REGEXP = /(?:[^\#\w]+|\Z)/
-
       INFORMAL_ADDRESS_REGEXP = /
         \A
-        \s*         # skip leading whitespace
+        \s*
         (?:#{UNIT_REGEXP} #{SEP_REGEXP})?
         (?:#{NUMBER_REGEXP})? \W*
         (?:#{FRACTION_REGEXP} \W*)?
         #{STREET_REGEXP} #{SEP_AVOID_UNIT_REGEXP}
         (?:#{UNIT_REGEXP} #{SEP_REGEXP})?
         (?:#{PLACE_REGEXP})?
-        # don't require match to reach end of string
       /ix
-
-      INTERSECTION_REGEXP = /\A\W*
-        #{STREET_REGEXP}\W*?
-        \s+#{CORNER_REGEXP}\s+
-  #          (?{ exists $_{$_} and $_{$_.1} = delete $_{$_} for (qw{prefix street type suffix})})
+      ADDRESS_REGEXP = /
+        \A
+        [^\w\x23]* # skip non-word chars except # (eg unit)
+        #{NUMBER_REGEXP} \W*
+        (?:#{FRACTION_REGEXP}\W*)?
         #{STREET_REGEXP}\W+
-  #          (?{ exists $_{$_} and $_{$_.2} = delete $_{$_} for (qw{prefix street type suffix})})
+        (?:#{UNIT_REGEXP}\W+)?
         #{PLACE_REGEXP}
-        \W*\z
+        \W* # require on non-word chars at end
+        \z  # right up to end of string
       /ix
 
       class << self
 
         def parse(location, args = {})
-          if CORNER_REGEXP.match(location)
-            parse_intersection(location, args)
-          else
-            parse_address(location, args) || parse_informal_address(location, args)
-          end
+          return parse_intersection(location, args) if CORNER_REGEXP.match(location)
+
+          parse_address(location, args) || parse_informal_address(location, args)
         end
 
         def parse_address(address, args = {})
@@ -218,28 +186,16 @@ module Lite
           return unless match = INTERSECTION_REGEXP.match(intersection)
 
           hash = match_to_hash(match)
+          intersection_parts(match, hash, 'street')
+          intersection_parts(match, hash, 'street_type')
 
-          streets = INTERSECTION_REGEXP.named_captures['street'].map do |pos|
-            match[pos.to_i]
-          end.select { |v| v }
-          hash['street']  = streets[0] if streets[0]
-          hash['street2'] = streets[1] if streets[1]
+          if hash['street_type']
+            if !hash['street_type2'] || (hash['street_type'] == hash['street_type2'])
+              type = hash['street_type'].dup
 
-          street_types = INTERSECTION_REGEXP.named_captures['street_type'].map do |pos|
-            match[pos.to_i]
-          end.select { |v| v }
-          hash['street_type']  = street_types[0] if street_types[0]
-          hash['street_type2'] = street_types[1] if street_types[1]
-
-          if hash['street_type'] &&
-             (
-               !hash['street_type2'] ||
-               (hash['street_type'] == hash['street_type2'])
-             )
-
-            type = hash['street_type'].clone
-            if type.gsub!(/s\W*$/i, '') && /\A#{STREET_TYPE_REGEXP}\z/io =~ type
-              hash['street_type'] = hash['street_type2'] = type
+              if type.gsub!(/s\W*$/i, '') && (/\A#{STREET_TYPE_REGEXP}\z/io =~ type)
+                hash['street_type'] = hash['street_type2'] = type
+              end
             end
           end
 
@@ -249,9 +205,18 @@ module Lite
         private
 
         def match_to_hash(match)
-          hash = {}
-          match.names.each { |name| hash[name] = match[name] if match[name] }
-          hash
+          match.names.each_with_object({}) do |name, hash|
+            value = match[name]
+            next unless value
+
+            hash[name] = value
+          end
+        end
+
+        def intersection_parts(match, hash, part)
+          parts = INTERSECTION_REGEXP.named_captures[part].map { |i| match[i.to_i] }.compact
+          hash[part]  = parts[0] if parts[0]
+          hash["#{part}2"] = parts[1] if parts[1]
         end
 
         def to_address(input, args)
@@ -268,7 +233,7 @@ module Lite
             input['redundant_street_type'] = true
           end
 
-          NORMALIZE_MAP.each_pair do |key, map|
+          NORMALIZATION_MAP.each_pair do |key, map|
             next unless input[key]
 
             mapping = map[input[key].downcase]
