@@ -208,125 +208,90 @@ RSpec.describe Lite::Address::Details do
     }
   end
 
-  describe 'results' do
-    it 'returns line1 with valid addresses' do
-      addresses.each_pair do |address, expected|
+  describe '#struct' do
+    context 'when checking by address type' do
+      it 'returns expected results for addresses' do
+        addresses.each_pair do |address, expected|
+          addr = Lite::Address::US.parse(address)
+
+          expect(expected[:line1]).to eq(addr.line1)
+          expect(expected[:line2]).to eq(addr.line2)
+          expect(expected[:to_s] || fallback_expected_line(expected)).to eq(addr.to_s)
+        end
+      end
+
+      it 'returns expected results for intersections' do
+        intersections.each_pair do |address, expected|
+          addr = Lite::Address::US.parse(address)
+
+          expect(expected[:line1]).to eq(addr.line1)
+          expect(expected[:line2]).to eq(addr.line2)
+          expect(expected[:to_s] || fallback_expected_line(expected)).to eq(addr.to_s)
+        end
+      end
+
+      it 'returns expected results for informal addresses' do
+        informal_addresses.each_pair do |address, expected|
+          addr = Lite::Address::US.parse_informal_address(address)
+
+          expect(expected[:line1]).to eq(addr.line1)
+          expect(expected[:line2]).to eq(addr.line2)
+          expect(expected[:to_s] || fallback_expected_line(expected)).to eq(addr.to_s)
+        end
+      end
+    end
+
+    context 'when responding to to_s' do
+      it 'returns with no line2' do
+        address = '45 Quaker Ave, Ste 105'
         addr = Lite::Address::US.parse(address)
 
-        expect(expected[:line1]).to eq(addr.line1)
+        expect(addr.to_s).to eq('45 Quaker Ave Ste 105')
       end
-    end
 
-    it 'returns line1 with intersections' do
-      intersections.each_pair do |address, expected|
+      it 'returns with valid addresses with zip ext' do
+        address = '7800 Mill Station Rd Sebastopol CA 95472-1234'
         addr = Lite::Address::US.parse(address)
 
-        expect(expected[:line1]).to eq(addr.line1)
+        expect(addr.to_s).to eq('7800 Mill Station Rd, Sebastopol, CA 95472-1234')
       end
-    end
 
-    it 'returns line1 with informal addresses' do
-      informal_addresses.each_pair do |address, expected|
-        addr = Lite::Address::US.parse_informal_address(address)
-
-        expect(expected[:line1]).to eq(addr.line1)
-      end
-    end
-
-    it 'returns line2 with valid addresses' do
-      addresses.each_pair do |address, expected|
+      it 'returns for line1' do
+        address = '7800 Mill Station Rd Sebastopol CA 95472-1234'
         addr = Lite::Address::US.parse(address)
 
-        expect(expected[:line2]).to eq(addr.line2)
+        expect(addr.line1).to eq(addr.to_s(:line1))
       end
-    end
 
-    it 'returns line2 with intersections' do
-      intersections.each_pair do |address, expected|
+      it 'returns for line2' do
+        address = '7800 Mill Station Rd Sebastopol CA 95472-1234'
         addr = Lite::Address::US.parse(address)
 
-        expect(expected[:line2]).to eq(addr.line2)
+        expect(addr.line2).to eq(addr.to_s(:line2))
       end
     end
 
-    it 'returns line2 with informal addresses' do
-      informal_addresses.each_pair do |address, expected|
-        addr = Lite::Address::US.parse_informal_address(address)
-
-        expect(expected[:line2]).to eq(addr.line2)
-      end
-    end
-
-    it 'returns to s with valid addresses' do
-      addresses.each_pair do |address, expected|
+    context 'when checking postal codes' do
+      it 'returns 9 digits' do
+        address = '7800 Mill Station Rd Sebastopol CA 95472-1234'
         addr = Lite::Address::US.parse(address)
-        expected_result = expected[:to_s] || fallback_expected_line(expected)
 
-        expect(expected_result).to eq(addr.to_s)
+        expect(addr.full_postal_code).to eq('95472-1234')
       end
-    end
 
-    it 'returns to s with intersections' do
-      intersections.each_pair do |address, expected|
+      it 'returns 5 digits' do
+        address = '7800 Mill Station Rd Sebastopol CA 95472'
         addr = Lite::Address::US.parse(address)
-        expected_result = expected[:to_s] || fallback_expected_line(expected)
 
-        expect(expected_result).to eq(addr.to_s)
+        expect(addr.full_postal_code).to eq('95472')
       end
-    end
 
-    it 'returns to s with informal addresses' do
-      informal_addresses.each_pair do |address, expected|
+      it 'returns nil' do
+        address = '7800 Mill Station Rd Sebastopol CA'
         addr = Lite::Address::US.parse(address)
-        expected_result = expected[:to_s] || fallback_expected_line(expected)
 
-        expect(expected_result).to eq(addr.to_s)
+        expect(addr.full_postal_code).to be_nil
       end
-    end
-
-    it 'returns to s with no line2' do
-      address = '45 Quaker Ave, Ste 105'
-      addr = Lite::Address::US.parse(address)
-
-      expect(addr.to_s).to eq('45 Quaker Ave Ste 105')
-    end
-
-    it 'returns to s with valid addresses with zip ext' do
-      address = '7800 Mill Station Rd Sebastopol CA 95472-1234'
-      addr = Lite::Address::US.parse(address)
-
-      expect(addr.to_s).to eq('7800 Mill Station Rd, Sebastopol, CA 95472-1234')
-    end
-
-    it 'returns to s for line1' do
-      address = '7800 Mill Station Rd Sebastopol CA 95472-1234'
-      addr = Lite::Address::US.parse(address)
-
-      expect(addr.line1).to eq(addr.to_s(:line1))
-    end
-
-    it 'returns to s for line2' do
-      address = '7800 Mill Station Rd Sebastopol CA 95472-1234'
-      addr = Lite::Address::US.parse(address)
-
-      expect(addr.line2).to eq(addr.to_s(:line2))
-    end
-
-    it 'returns full postal code' do
-      address = '7800 Mill Station Rd Sebastopol CA 95472-1234'
-      addr = Lite::Address::US.parse(address)
-
-      expect(addr.full_postal_code).to eq('95472-1234')
-
-      address = '7800 Mill Station Rd Sebastopol CA 95472'
-      addr = Lite::Address::US.parse(address)
-
-      expect(addr.full_postal_code).to eq('95472')
-
-      address = '7800 Mill Station Rd Sebastopol CA'
-      addr = Lite::Address::US.parse(address)
-
-      expect(addr.full_postal_code).to be_nil
     end
   end
 
