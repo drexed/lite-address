@@ -249,7 +249,7 @@ RSpec.describe Lite::Address::US do
         city: 'Some City',
         number: '99',
         street: 'Some',
-        unit_prefix: 'Lt',
+        unit_prefix: 'Lot',
         street_type: 'Rd',
         state: 'LA'
       },
@@ -275,7 +275,7 @@ RSpec.describe Lite::Address::US do
         street: 'Quaker',
         street_type: 'Ave',
         unit: '105',
-        unit_prefix: 'Ste'
+        unit_prefix: 'Suite'
       },
       '2730 S Veitch St Apt 207, Arlington, VA 22206' => { #### pre-existing tests from ruby library
         number: '2730',
@@ -529,14 +529,14 @@ RSpec.describe Lite::Address::US do
       #   postal_code: '30165',
       #   city: 'Rome',
       #   state: 'GA',
-      #   unit_prefix: 'Box',
+      #   unit_prefix: 'PO Box',
       #   unit: '1288'
       # },
       # 'PO Box 1288, Rome, GA, 30165' => { # PO Box
       #   postal_code: '30165',
       #   city: 'Rome',
       #   state: 'GA',
-      #   unit_prefix: 'Box',
+      #   unit_prefix: 'PO Box',
       #   unit: '1288'
       # },
       # 'PO Box 1288, Rome, GA, 30165-1288' => { # PO Box with Plus 4
@@ -544,7 +544,7 @@ RSpec.describe Lite::Address::US do
       #   postal_code_ext: '1288',
       #   city: 'Rome',
       #   state: 'GA',
-      #   unit_prefix: 'Box',
+      #   unit_prefix: 'PO Box',
       #   unit: '1288'
       # }
     }

@@ -53,53 +53,45 @@ module Lite
       NUMBER_REGEXP = /(?<number>(n|s|e|w)?\d+-?\d*)(?=\D)/ix
 
       # http://pe.usps.com/text/pub28/pub28c2_003.htm
+      UNIT_ABBREVIATIONS_NUMBERED = {
+        /(?:ap|dep)(?:ar)?t(?:me?nt)?/i => 'Apt',
+        /p\W*[om]\W*b(?:ox)?/i => 'PO Box',
+        /bu?i?ldi?n?g/i => 'Bldg',
+        /dep(artmen)?t/i => 'Dept',
+        /flo*r?/i => 'Floor',
+        /ha?nga?r/i => 'Hanger',
+        /lo?t/i => 'Lot',
+        /ro*m/i => 'Room',
+        /pier/i => 'Pier',
+        /slip/i => 'Slip',
+        /spa?ce?/i => 'Space',
+        /stop/i => 'Stop',
+        /drawer/i => 'Drawer',
+        /su?i?te/i => 'Suite',
+        /tra?i?le?r/i => 'Trailer',
+        /\w*(?<!po\W)box/i => 'Box',
+        /uni?t/i => 'Unit'
+      }.freeze
+      UNIT_ABBREVIATIONS_UNNUMBERED = {
+        /ba?se?me?n?t/i => 'Basement',
+        /fro?nt/i => 'Front',
+        /lo?bby/i => 'Lobby',
+        /lowe?r/i => 'Lower',
+        /off?i?ce?/i => 'Office',
+        /pe?n?t?ho?u?s?e?/i => 'PH',
+        /rear/i => 'Rear',
+        /side/i => 'Side',
+        /uppe?r/i => 'Upper'
+      }.freeze
+      UNIT_ABBREVIATIONS = UNIT_ABBREVIATIONS_NUMBERED.merge(
+        UNIT_ABBREVIATIONS_UNNUMBERED
+      ).freeze
       UNIT_PREFIX_NUMBERED_REGEXP = /(?<unit_prefix>
-        su?i?te|p\W*[om]\W*b(?:ox)?|(?:ap|dep)(?:ar)?t(?:me?nt)?|ro*m|flo*r?|uni?t|bu?i?ldi?n?g
-        |ha?nga?r|lo?t|pier|slip|spa?ce?|stop|tra?i?le?r|box
+        #{UNIT_ABBREVIATIONS_NUMBERED.keys.join('|')}
       )(?![a-z])/ix
       UNIT_PREFIX_UNNUMBERED_REGEXP = /(?<unit_prefix>
-        ba?se?me?n?t|fro?nt|lo?bby|lowe?r|off?i?ce?|pe?n?t?ho?u?s?e?|rear|side|uppe?r
+        #{UNIT_ABBREVIATIONS_UNNUMBERED.keys.join('|')}
       )\b/ix
-
-      # UNIT_ABBREVIATIONS_NUMBERED = {
-      #   /(?:ap|dep)(?:ar)?t(?:me?nt)?/i => "Apt",
-      #   /p\W*[om]\W*b(?:ox)?/i => 'PO Box',
-      #   /bu?i?ldi?n?g/i => "Bldg",
-      #   /dep(artmen)?t/i => "Dept",
-      #   /flo*r?/i => "Fl",
-      #   /ha?nga?r/i => "Hngr",
-      #   /lo?t/i  => 'Lot',
-      #   /ro*m/i => "Rm",
-      #   /pier/i  => 'Pier',
-      #   /slip/i  => 'Slip',
-      #   /spa?ce?/i => "Spc",
-      #   /stop/i    => "Stop",
-      #   /drawer/i    => "Drawer",
-      #   /su?i?te/i => "Ste",
-      #   /tra?i?le?r/i => "Trlr",
-      #   /\w*(?<!po\W)box/i  => 'Box',
-      #   /uni?t/i => 'Unit'
-      # }.freeze
-      # UNIT_ABBREVIATIONS_UNNUMBERED = {
-      #   /ba?se?me?n?t/i => "Bsmt",
-      #   /fro?nt/i => "Frnt",
-      #   /lo?bby/i => "Lbby",
-      #   /lowe?r/i => "Lowr",
-      #   /off?i?ce?/i => "Ofc",
-      #   /pe?n?t?ho?u?s?e?/i => 'PH',
-      #   /rear/i   => 'Rear',
-      #   /side/i   => 'Side',
-      #   /uppe?r/i => "Uppr",
-      # }.freeze
-      # UNIT_ABBREVIATIONS = UNIT_ABBREVIATIONS_NUMBERED.merge(
-      #   UNIT_ABBREVIATIONS_UNNUMBERED
-      # ).freeze
-      # UNIT_PREFIX_NUMBERED_REGEXP = /(?<unit_prefix>
-      #   #{UNIT_ABBREVIATIONS_NUMBERED.keys.join("|")}
-      # )(?![a-z])/ix
-      # UNIT_PREFIX_UNNUMBERED_REGEXP = /(?<unit_prefix>
-      #   #{UNIT_ABBREVIATIONS_UNNUMBERED.keys.join("|")}
-      # )\b/ix
 
       # NOTE: Dynamic constants
 
@@ -202,26 +194,27 @@ module Lite
 
       class << self
 
-        def parse(location, args = {})
+        def parse(address, args = {})
+          location = preclean_address(address)
           return parse_intersection(location, args) if CORNER_REGEXP.match(location)
 
           parse_address(location, args) || parse_informal_address(location, args)
         end
 
         def parse_address(address, args = {})
-          return unless match = ADDRESS_REGEXP.match(address)
+          return unless match = ADDRESS_REGEXP.match(preclean_address(address))
 
           to_address(match_to_hash(match), args)
         end
 
         def parse_informal_address(address, args = {})
-          return unless match = INFORMAL_ADDRESS_REGEXP.match(address)
+          return unless match = INFORMAL_ADDRESS_REGEXP.match(preclean_address(address))
 
           to_address(match_to_hash(match), args)
         end
 
-        def parse_intersection(intersection, args = {})
-          return unless match = INTERSECTION_REGEXP.match(intersection)
+        def parse_intersection(address, args = {})
+          return unless match = INTERSECTION_REGEXP.match(preclean_address(address))
 
           hash = match_to_hash(match)
           intersection_parts(match, hash, 'street')
@@ -239,6 +232,10 @@ module Lite
         end
 
         private
+
+        def preclean_address(address)
+          address.delete_prefix('(').delete_suffix(')')
+        end
 
         def match_to_hash(match)
           match.names.each_with_object({}) do |name, hash|
@@ -275,9 +272,9 @@ module Lite
           end
 
           ## abbreviate unit prefixes
-          # UNIT_ABBREVIATIONS.each_pair do |regex, abbr|
-          #   regex.match(input['unit_prefix']) { |_m| input['unit_prefix'] = abbr }
-          # end
+          UNIT_ABBREVIATIONS.each_pair do |regex, abbr|
+            regex.match(input['unit_prefix']) { |_m| input['unit_prefix'] = abbr }
+          end
 
           NORMALIZATION_MAP.each_pair do |key, map|
             next unless input[key]

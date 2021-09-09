@@ -110,7 +110,7 @@ RSpec.describe Lite::Address::Details do
         line2: 'East San Jose, CA'
       },
       'lt42 99 Some Road, Some City LA' => {
-        line1: '99 Some Rd Lt 42',
+        line1: '99 Some Rd Lot 42',
         line2: 'Some City, LA'
       },
       '36401 County Road 43, Eaton, CO 80615' => {
@@ -122,7 +122,7 @@ RSpec.describe Lite::Address::Details do
         line2: 'Town, CO 12345'
       },
       "'45 Quaker Ave, Ste 105'" => {
-        line1: '45 Quaker Ave Ste 105',
+        line1: '45 Quaker Ave Suite 105',
         line2: ''
       },
       '2730 S Veitch St Apt 207, Arlington, VA 22206' => {
@@ -220,11 +220,11 @@ RSpec.describe Lite::Address::Details do
       '233 S Wacker Dr lobby 60606' => {
         line1: '233 S Wacker Dr Lobby',
         line2: '60606'
+      },
+      '(233 S Wacker Dr lobby 60606)' => {
+        line1: '233 S Wacker Dr Lobby',
+        line2: '60606'
       }
-      # FIXME
-      # "(233 S Wacker Dr lobby 60606)" => {
-      # :line1 => "233 S Wacker Dr Lobby",
-      # :line2 => ""}
     }
   end
 
@@ -235,9 +235,9 @@ RSpec.describe Lite::Address::Details do
           addr = Lite::Address::US.parse(address)
           expected[:to_s] ||= fallback_expected_line(expected)
 
-          expect(expected[:line1]).to eq(addr.line1)
-          expect(expected[:line2]).to eq(addr.line2)
-          expect(expected[:to_s]).to eq(addr.to_s)
+          expect(addr.line1).to eq(expected[:line1])
+          expect(addr.line2).to eq(expected[:line2])
+          expect(addr.to_s).to eq(expected[:to_s])
         end
       end
 
@@ -246,9 +246,9 @@ RSpec.describe Lite::Address::Details do
           addr = Lite::Address::US.parse_intersection(address)
           expected[:to_s] ||= fallback_expected_line(expected)
 
-          expect(expected[:line1]).to eq(addr.line1)
-          expect(expected[:line2]).to eq(addr.line2)
-          expect(expected[:to_s]).to eq(addr.to_s)
+          expect(addr.line1).to eq(expected[:line1])
+          expect(addr.line2).to eq(expected[:line2])
+          expect(addr.to_s).to eq(expected[:to_s])
         end
       end
 
@@ -257,9 +257,9 @@ RSpec.describe Lite::Address::Details do
           addr = Lite::Address::US.parse_informal_address(address)
           expected[:to_s] ||= fallback_expected_line(expected)
 
-          expect(expected[:line1]).to eq(addr.line1)
-          expect(expected[:line2]).to eq(addr.line2)
-          expect(expected[:to_s]).to eq(addr.to_s)
+          expect(addr.line1).to eq(expected[:line1])
+          expect(addr.line2).to eq(expected[:line2])
+          expect(addr.to_s).to eq(expected[:to_s])
         end
       end
     end
@@ -269,7 +269,7 @@ RSpec.describe Lite::Address::Details do
         address = '45 Quaker Ave, Ste 105'
         addr = Lite::Address::US.parse(address)
 
-        expect(addr.to_s).to eq('45 Quaker Ave Ste 105')
+        expect(addr.to_s).to eq('45 Quaker Ave Suite 105')
       end
 
       it 'returns with valid addresses with zip ext' do
