@@ -142,11 +142,11 @@ module Lite
       end
 
       def unit_numbered
-        @unit_numbered ||= /(?<unit_prefix>#{list.unit_abbreviations_numbered.keys.join('|')})(?![a-z])/ix
+        @unit_numbered ||= /(?<unit_prefix>#{list.unit_abbr_regexps_numbered_regexps.values.join('|')})(?![a-z])/ix
       end
 
       def unit_unnumbered
-        @unit_unnumbered ||= /(?<unit_prefix>#{list.unit_abbreviations_unnumbered.keys.join('|')})\b/ix
+        @unit_unnumbered ||= /(?<unit_prefix>#{list.unit_abbr_regexps_unnumbered_regexps.values.join('|')})\b/ix
       end
 
     end

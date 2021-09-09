@@ -41,51 +41,55 @@ module Lite
       end
 
       def subdivision_names
-        @subdivision_names ||= country.subdivisions.each_with_object({}) do |(code, subdivision), hash|
-          hash[subdivision.name.downcase] = code
+        @subdivision_names ||= country.subdivisions.each_with_object({}) do |(code, sub), hash|
+          hash[sub.name.downcase] = code
         end
       end
 
-      def unit_abbreviations
+      def unit_abbr_regexps
         # http://pe.usps.com/text/pub28/pub28c2_003
-        @unit_abbreviations ||= unit_abbreviations_numbered.merge(unit_abbreviations_unnumbered)
+        @unit_abbr_regexps ||= unit_abbr_regexps_numbered_regexps.merge(
+          unit_abbr_regexps_unnumbered_regexps
+        )
       end
 
-      def unit_abbreviations_numbered
-        @unit_abbreviations_numbered ||= {
-          /(?:ap|dep)(?:ar)?t(?:me?nt)?/i => 'Apt',
-          /p\W*[om]\W*b(?:ox)?/i => 'PO Box',
-          /bu?i?ldi?n?g/i => 'Bldg',
-          /dep(artmen)?t/i => 'Dept',
-          /flo*r?/i => 'Floor',
-          /ha?nga?r/i => 'Hanger',
-          /lo?t/i => 'Lot',
-          /ro*m/i => 'Room',
-          /pier/i => 'Pier',
-          /slip/i => 'Slip',
-          /spa?ce?/i => 'Space',
-          /stop/i => 'Stop',
-          /drawer/i => 'Drawer',
-          /su?i?te/i => 'Suite',
-          /tra?i?le?r/i => 'Trailer',
-          /\w*(?<!po\W)box/i => 'Box',
-          /uni?t/i => 'Unit'
+      # rubocop:disable Metrics/MethodLength
+      def unit_abbr_regexps_numbered_regexps
+        @unit_abbr_regexps_numbered_regexps ||= {
+          'Apt' => /(?:ap|dep)(?:ar)?t(?:me?nt)?/i,
+          'PO Box' => /p\W*[om]\W*b(?:ox)?/i,
+          'Bldg' => /bu?i?ldi?n?g/i,
+          'Dept' => /dep(artmen)?t/i,
+          'Floor' => /flo*r?/i,
+          'Hanger' => /ha?nga?r/i,
+          'Lot' => /lo?t/i,
+          'Room' => /ro*m/i,
+          'Pier' => /pier/i,
+          'Slip' => /slip/i,
+          'Space' => /spa?ce?/i,
+          'Stop' => /stop/i,
+          'Drawer' => /drawer/i,
+          'Suite' => /su?i?te/i,
+          'Trailer' => /tra?i?le?r/i,
+          'Box' => /\w*(?<!po\W)box/i,
+          'Unit' => /uni?t/i
         }
       end
 
-      def unit_abbreviations_unnumbered
-        @unit_abbreviations_unnumbered ||= {
-          /ba?se?me?n?t/i => 'Basement',
-          /fro?nt/i => 'Front',
-          /lo?bby/i => 'Lobby',
-          /lowe?r/i => 'Lower',
-          /off?i?ce?/i => 'Office',
-          /pe?n?t?ho?u?s?e?/i => 'PH',
-          /rear/i => 'Rear',
-          /side/i => 'Side',
-          /uppe?r/i => 'Upper'
+      def unit_abbr_regexps_unnumbered_regexps
+        @unit_abbr_regexps_unnumbered_regexps ||= {
+          'Basement' => /ba?se?me?n?t/i,
+          'Front' => /fro?nt/i,
+          'Lobby' => /lo?bby/i,
+          'Lower' => /lowe?r/i,
+          'Office' => /off?i?ce?/i,
+          'PH' => /pe?n?t?ho?u?s?e?/i,
+          'Rear' => /rear/i,
+          'Side' => /side/i,
+          'Upper' => /uppe?r/i
         }
       end
+      # rubocop:enable Metrics/MethodLength
 
     end
   end

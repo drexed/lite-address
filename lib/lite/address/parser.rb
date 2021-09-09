@@ -122,7 +122,7 @@ module Lite
       end
 
       def address_abbreviate_unit_prefixes(map)
-        list.unit_abbreviations.each do |regex, abbr|
+        list.unit_abbr_regexps.each do |abbr, regex|
           regex.match(map['unit_prefix']) do |_match|
             map['unit_prefix'] = abbr
           end
