@@ -12,10 +12,6 @@ module Lite
         @country = country
       end
 
-      ###########################################
-      # Maps
-      ###########################################
-
       def cardinal_codes
         @cardinal_codes ||= cardinal_types.invert
       end
@@ -36,7 +32,7 @@ module Lite
 
       def street_type_regexps
         @street_type_regexps ||= street_types.each_with_object({}) do |(type, abbr), hash|
-          hash[abbr] = /\b (?: #{abbr}|#{::Regexp.quote(type)} ) \b/ix
+          hash[abbr] = /\b(?:#{abbr}|#{::Regexp.quote(type)})\b/ix
         end
       end
 
