@@ -30,6 +30,9 @@ module Lite
         !!street && !!street2
       end
 
+      # TODO: add ukey and to_ukey(address)
+      # Expose more of the contry gem methods
+
 
 
 

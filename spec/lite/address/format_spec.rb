@@ -243,7 +243,7 @@ RSpec.describe Lite::Address::Format do
   describe '#struct' do
     context 'when checking by address type' do
       it 'returns expected results for formal addresses' do
-        addresses.each_pair do |address, expected|
+        addresses.each do |address, expected|
           addr = Lite::Address::Parser.any(address)
           expected[:to_s] ||= fallback_expected_line(expected)
 
@@ -254,7 +254,7 @@ RSpec.describe Lite::Address::Format do
       end
 
       it 'returns expected results for intersectional addresses' do
-        intersections.each_pair do |address, expected|
+        intersections.each do |address, expected|
           addr = Lite::Address::Parser.intersectional(address)
           expected[:to_s] ||= fallback_expected_line(expected)
 
@@ -265,7 +265,7 @@ RSpec.describe Lite::Address::Format do
       end
 
       it 'returns expected results for informal addresses' do
-        informal_addresses.each_pair do |address, expected|
+        informal_addresses.each do |address, expected|
           addr = Lite::Address::Parser.informal(address)
           expected[:to_s] ||= fallback_expected_line(expected)
 

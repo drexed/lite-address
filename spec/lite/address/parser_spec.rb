@@ -601,7 +601,7 @@ RSpec.describe Lite::Address::Parser do
 
   describe '#parse' do
     it 'returns correct address parsing' do
-      addresses.each_pair do |address, expected|
+      addresses.each do |address, expected|
         addr = described_class.any(address)
 
         expect(addr.intersection?).to eq(false)
@@ -610,7 +610,7 @@ RSpec.describe Lite::Address::Parser do
     end
 
     it 'returns correct informal address parsing' do
-      informal_addresses.each_pair do |address, expected|
+      informal_addresses.each do |address, expected|
         addr = described_class.any(address, informal: true)
 
         compare_expected_to_actual_hash(expected, addr.to_h, address)
@@ -618,7 +618,7 @@ RSpec.describe Lite::Address::Parser do
     end
 
     it 'returns correct intersection address parsing' do
-      intersections.each_pair do |address, expected|
+      intersections.each do |address, expected|
         addr = described_class.any(address)
 
         expect(addr.intersection?).to eq(true)
@@ -719,7 +719,7 @@ RSpec.describe Lite::Address::Parser do
   end
 
   def compare_expected_to_actual_hash(expected, actual, address)
-    expected.each_pair do |ekey, eval|
+    expected.each do |ekey, eval|
       aval = actual[ekey]
       fmsg = "failed #{ekey}: #{address.inspect} due to #{eval.inspect} != #{aval.inspect}"
       expect(eval).to eq(aval), fmsg
