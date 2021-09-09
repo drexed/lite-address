@@ -76,6 +76,7 @@ module Lite
 
       private
 
+      # rubocop:disable Metrics/AbcSize
       def address_line1
         parts = []
         parts << number
@@ -102,6 +103,7 @@ module Lite
         parts << suffix2
         parts
       end
+      # rubocop:enable Metrics/AbcSize
 
     end
 

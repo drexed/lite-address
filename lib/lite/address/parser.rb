@@ -85,6 +85,23 @@ module Lite
         end
       end
 
+      # rubocop:disable Metrics/AbcSize
+      def normalization_map
+        @normalization_map ||= {
+          'prefix' => list.cardinal_types,
+          'prefix1' => list.cardinal_types,
+          'prefix2' => list.cardinal_types,
+          'suffix' => list.cardinal_types,
+          'suffix1' => list.cardinal_types,
+          'suffix2' => list.cardinal_types,
+          'street_type' => list.street_types,
+          'street_type1' => list.street_types,
+          'street_type2' => list.street_types,
+          'state' => list.subdivision_names
+        }
+      end
+      # rubocop:enable Metrics/AbcSize
+
       def intersectional_submatch(match, map, part)
         parts = regexp.intersectional_address.named_captures
         parts = parts[part].filter_map { |i| match[i.to_i] }
@@ -115,12 +132,11 @@ module Lite
 
       def address_redundantize_street_type(map)
         map['redundant_street_type'] = false
+        return unless map['street'] && !map['street_type']
 
-        if map['street'] && !map['street_type']
-          match = regexp.street.match(map['street'])
-          map['street_type'] = match['street_type'] if match
-          map['redundant_street_type'] = true
-        end
+        match = regexp.street.match(map['street'])
+        map['street_type'] = match['street_type'] if match
+        map['redundant_street_type'] = true
       end
 
       def address_abbreviate_unit_prefixes(map)
@@ -132,18 +148,7 @@ module Lite
       end
 
       def address_normalize_values(map)
-        {
-          'prefix' => list.cardinal_types,
-          'prefix1' => list.cardinal_types,
-          'prefix2' => list.cardinal_types,
-          'suffix' => list.cardinal_types,
-          'suffix1' => list.cardinal_types,
-          'suffix2' => list.cardinal_types,
-          'street_type' => list.street_types,
-          'street_type1' => list.street_types,
-          'street_type2' => list.street_types,
-          'state' => list.subdivision_names
-        }.each do |key, hash|
+        normalization_map.each do |key, hash|
           next unless (map_key = map[key])
 
           mapping = hash[map_key.downcase]
