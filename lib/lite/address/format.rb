@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'snail' unless defined?(Snail)
+
 module Lite
   module Address
 
@@ -67,6 +69,10 @@ module Lite
         end
       end
 
+      def to_snail(options = {})
+        Snail.new(snail_params.merge(options)).to_s
+      end
+
       def ==(other)
         to_s == other.to_s
       end
@@ -88,6 +94,16 @@ module Lite
         # http://pe.usps.gov/cpim/ftp/pubs/Pub28/pub28.pdf pg28
         parts << (unit_prefix ? unit : "\# #{unit}") if unit
         parts
+      end
+
+      def snail_params
+        {
+          :line_1 => line1,
+          :city => city,
+          :region => state,
+          :postal_code => full_postal_code,
+          :country => country_code
+        }
       end
 
       def intersection_line1

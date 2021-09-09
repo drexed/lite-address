@@ -162,6 +162,16 @@ RSpec.describe Lite::Address::Format do
     end
   end
 
+  describe '.to_snail' do
+    it 'returns snail mail format' do
+      address = '45 Quaker Ave, Ste 105, Queens, New York 33103-3242'
+      addr = Lite::Address::Parser.any(address)
+      snail_addr = "John Doe\n45 Quaker Ave Suite 105\nQueens NY  33103-3242"
+
+      expect(addr.to_snail(name: 'John Doe')).to eq(snail_addr)
+    end
+  end
+
   describe '.==' do
     it 'returns true' do
       address = '7800 Mill Station Rd Sebastopol CA 95472-1234'
