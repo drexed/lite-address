@@ -126,7 +126,18 @@ module Lite
       end
 
       def address_normalize_values(map)
-        regexp.normalization_map.each do |key, hash|
+        {
+          'prefix' => regexp.cardinal_types,
+          'prefix1' => regexp.cardinal_types,
+          'prefix2' => regexp.cardinal_types,
+          'suffix' => regexp.cardinal_types,
+          'suffix1' => regexp.cardinal_types,
+          'suffix2' => regexp.cardinal_types,
+          'street_type' => regexp.street_types,
+          'street_type1' => regexp.street_types,
+          'street_type2' => regexp.street_types,
+          'state' => regexp.subdivision_names
+        }.each do |key, hash|
           next unless map_key = map[key]
 
           mapping = hash[map_key.downcase]
