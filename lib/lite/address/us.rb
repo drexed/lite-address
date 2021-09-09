@@ -43,7 +43,6 @@ module Lite
       # NOTE: Static constants
 
       CORNER_REGEXP = /(?:\band\b|\bat\b|&|@)/i
-      FRACTION_REGEXP = %r{\d+/\d+}
       SEP_AVOID_UNIT_REGEXP = /(?:[^\#\w]+|\Z)/
       SEP_REGEXP = /(?:\W+|\Z)/
       ZIP_REGEXP = /(?:(?<postal_code>\d{5})(?:-?(?<postal_code_ext>\d{4}))?)/
@@ -158,7 +157,7 @@ module Lite
             (?:#{UNIT_PREFIX_NUMBERED_REGEXP} \W*)
             | (?<unit_prefix> \#)\W*
           )
-          (?<unit> [\w-]+)
+          (?<unit> [\w\/-]+)
         ) | #{UNIT_PREFIX_UNNUMBERED_REGEXP}
       /ix
       INTERSECTION_REGEXP = /\A\W*
@@ -175,7 +174,6 @@ module Lite
         \s*
         (?:#{UNIT_REGEXP} #{SEP_REGEXP} #{PLACE_REGEXP})?
         (?:#{NUMBER_REGEXP})? \W*
-        (?:#{FRACTION_REGEXP} \W*)?
         #{STREET_REGEXP} #{SEP_AVOID_UNIT_REGEXP}
         (?:#{UNIT_REGEXP} #{SEP_REGEXP})?
         (?:#{PLACE_REGEXP})?
@@ -184,7 +182,6 @@ module Lite
         \A
         [^\w\x23]* # skip non-word chars except # (eg unit)
         #{NUMBER_REGEXP} \W*
-        (?:#{FRACTION_REGEXP}\W*)?
         #{STREET_REGEXP}\W+
         (?:#{UNIT_REGEXP}\W+)?
         #{PLACE_REGEXP}

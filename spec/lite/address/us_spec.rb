@@ -209,7 +209,7 @@ RSpec.describe Lite::Address::US do
       },
       '3813 1/2 Some Road, Los Angeles, CA' => {
         number: '3813',
-        street: 'Some',
+        street: '1/2 Some',
         state: 'CA',
         city: 'Los Angeles',
         street_type: 'Rd'
