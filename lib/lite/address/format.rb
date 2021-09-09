@@ -43,12 +43,12 @@ module Lite
         list.state_names[state]&.capitalize
       end
 
-      def line1(str = String.new)
+      def line1(str = +'')
         parts = intersection? ? intersection_line1 : address_line1
         str + parts.compact.join(' ').strip
       end
 
-      def line2(str = String.new)
+      def line2(str = +'')
         str += [city, state].compact.join(', ')
         str << " #{full_postal_code}" if postal_code
         str.strip

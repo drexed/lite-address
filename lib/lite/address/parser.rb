@@ -31,21 +31,21 @@ module Lite
       end
 
       def formal(args = {})
-        return unless match = regexp.formal_address.match(address)
+        return unless (match = regexp.formal_address.match(address))
 
         map = match_map(match)
         generate_address(map, args)
       end
 
       def informal(args = {})
-        return unless match = regexp.informal_address.match(address)
+        return unless (match = regexp.informal_address.match(address))
 
         map = match_map(match)
         generate_address(map, args)
       end
 
       def intersectional(args = {})
-        return unless match = regexp.intersectional_address.match(address)
+        return unless (match = regexp.intersectional_address.match(address))
 
         map = match_map(match)
         intersectional_submatch(match, map, 'street')
@@ -87,7 +87,7 @@ module Lite
 
       def intersectional_submatch(match, map, part)
         parts = regexp.intersectional_address.named_captures
-        parts = parts[part].map { |i| match[i.to_i] }.compact
+        parts = parts[part].filter_map { |i| match[i.to_i] }
         map[part] = parts[0] if parts[0]
         map["#{part}2"] = parts[1] if parts[1]
       end
@@ -144,7 +144,7 @@ module Lite
           'street_type2' => list.street_types,
           'state' => list.subdivision_names
         }.each do |key, hash|
-          next unless map_key = map[key]
+          next unless (map_key = map[key])
 
           mapping = hash[map_key.downcase]
           map[key] = mapping if mapping
