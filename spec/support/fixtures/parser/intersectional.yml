@@ -1,0 +1,64 @@
+---
+Mission & Valencia San Francisco CA:
+  :street_type:
+  :street_type2:
+  :street: Mission
+  :state: CA
+  :city: San Francisco
+  :street2: Valencia
+Mission & Valencia, San Francisco CA:
+  :street_type:
+  :street_type2:
+  :street: Mission
+  :state: CA
+  :city: San Francisco
+  :street2: Valencia
+Mission St and Valencia St San Francisco CA:
+  :street_type: St
+  :street_type2: St
+  :street: Mission
+  :state: CA
+  :city: San Francisco
+  :street2: Valencia
+Hollywood Blvd and Vine St Los Angeles, CA:
+  :street_type: Blvd
+  :street_type2: St
+  :street: Hollywood
+  :state: CA
+  :city: Los Angeles
+  :street2: Vine
+Mission St & Valencia St San Francisco CA:
+  :street_type: St
+  :street_type2: St
+  :street: Mission
+  :state: CA
+  :city: San Francisco
+  :street2: Valencia
+Mission and Valencia Sts San Francisco CA:
+  :street_type: St
+  :street_type2: St
+  :street: Mission
+  :state: CA
+  :city: San Francisco
+  :street2: Valencia
+Mission & Valencia Sts. San Francisco CA:
+  :street_type: St
+  :street_type2: St
+  :street: Mission
+  :state: CA
+  :city: San Francisco
+  :street2: Valencia
+Mission & Valencia Streets San Francisco CA:
+  :street_type: St
+  :street_type2: St
+  :street: Mission
+  :state: CA
+  :city: San Francisco
+  :street2: Valencia
+Mission Avenue and Valencia Street San Francisco CA:
+  :street_type: Ave
+  :street_type2: St
+  :street: Mission
+  :state: CA
+  :city: San Francisco
+  :street2: Valencia

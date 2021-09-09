@@ -1,0 +1,88 @@
+---
+"#42 233 S Wacker Dr 60606":
+  :number: '233'
+  :postal_code: '60606'
+  :prefix: S
+  :state:
+  :street: Wacker
+  :street_type: Dr
+  :unit: '42'
+  :unit_prefix: "#"
+  :city:
+  :street2:
+  :suffix:
+Apt. 42, 233 S Wacker Dr 60606:
+  :number: '233'
+  :postal_code: '60606'
+  :prefix: S
+  :state:
+  :street: Wacker
+  :street_type: Dr
+  :unit: '42'
+  :unit_prefix: Apt
+  :city:
+  :street2:
+  :suffix:
+'2730 S Veitch St #207':
+  :number: '2730'
+  :street: Veitch
+  :street_type: St
+  :unit: '207'
+  :unit_prefix: "#"
+  :suffix:
+  :prefix: S
+  :city:
+  :state:
+  :postal_code:
+321 S. Washington:
+  :street_type:
+  :prefix: S
+  :street: Washington
+  :number: '321'
+# Unnumbered secondary unit type address
+233 S Wacker Dr lobby 60606:
+  :number: '233'
+  :street: Wacker
+  :postal_code: '60606'
+  :street_type: Dr
+  :prefix: S
+  :unit_prefix: Lobby
+# Surrounding punctuation address
+"(233 S Wacker Dr lobby 60606)":
+  :number: '233'
+  :street: Wacker
+  :postal_code: '60606'
+  :street_type: Dr
+  :prefix: S
+  :unit_prefix: Lobby
+# No space before sec_unit_num address
+lt42 99 Some Road, Some City LA:
+  :unit: '42'
+  :city: Some City
+  :number: '99'
+  :street: Some
+  :unit_prefix: Lot
+  :street_type: Rd
+  :state: LA
+# # PO Box with surronding punctuation
+# "(PO Box 1288, Rome, GA, 30165)":
+#   postal_code: '30165'
+#   city: Rome
+#   state: GA
+#   unit_prefix: PO Box
+#   unit: '1288'
+# # PO Box
+# PO Box 1288, Rome, GA, 30165:
+#   :postal_code: '30165'
+#   :city: Rome
+#   :state: GA
+#   :unit_prefix: PO Box
+#   :unit: '1288'
+# # PO Box with postal code + 4
+# PO Box 1288, Rome, GA, 30165-1288:
+#   :postal_code: '30165'
+#   :postal_code_ext: '1288'
+#   :city: Rome
+#   :state: GA
+#   :unit_prefix: PO Box
+#   :unit: '1288'
