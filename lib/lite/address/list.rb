@@ -40,6 +40,12 @@ module Lite
         @subdivision_codes ||= subdivision_names.invert
       end
 
+      def subdivision_map
+        @subdivision_map ||= country.subdivisions.each_with_object({}) do |(code, sub), hash|
+          hash[code] = sub.name
+        end
+      end
+
       def subdivision_names
         @subdivision_names ||= country.subdivisions.each_with_object({}) do |(code, sub), hash|
           hash[sub.name.downcase] = code
@@ -87,6 +93,7 @@ module Lite
         }
       end
       alias state_codes subdivision_codes
+      alias state_map subdivision_map
       alias state_names subdivision_names
 
     end

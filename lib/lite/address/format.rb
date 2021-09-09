@@ -19,7 +19,7 @@ module Lite
     class Format < Struct.new(*FORMAT_KEYS, keyword_init: true)
 
       def country_code
-        country.code
+        country.alpha2
       end
 
       def country_name
@@ -30,17 +30,10 @@ module Lite
         !!street && !!street2
       end
 
-      # TODO: add ukey and to_ukey(address)
-      # Expose more of the contry gem methods
-
       def full_postal_code
         return if postal_code.nil?
 
         @full_postal_code ||= [postal_code, postal_code_ext].compact.join('-')
-      end
-
-      def state_name
-        list.state_names[state]&.capitalize
       end
 
       def line1(str = +'')
@@ -54,8 +47,12 @@ module Lite
         str.strip
       end
 
+      def state_name
+        list.subdivision_map[state]
+      end
+
       def to_h
-        Lite::Address::FORMAT_KEYS.each_with_object({}) do |key, hash|
+        @to_h ||= Lite::Address::FORMAT_KEYS.each_with_object({}) do |key, hash|
           hash[key] = public_send(key)
         end
       end
@@ -72,6 +69,7 @@ module Lite
         to_s == other.to_s
       end
 
+      alias alpha2 country_code
       alias state_code state
 
       private

@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe Lite::Address::Parser do
-  let(:addresses) { load_fixtures(:addresses) }
+  let(:formal) { load_fixtures(:formal) }
   let(:informal) { load_fixtures(:informal) }
   let(:intersectional) { load_fixtures(:intersectional) }
   let(:failures) { load_fixtures(:failures) }
@@ -11,10 +11,9 @@ RSpec.describe Lite::Address::Parser do
 
   describe '#any' do
     it 'returns correct parsed attributes' do
-      addresses.each do |address, expected|
+      formal.merge(informal, intersectional).each do |address, expected|
         addr = described_class.any(address)
 
-        expect(addr.intersection?).to eq(false)
         compare_expected_to_actual_hash(expected, addr.to_h, address)
       end
     end
@@ -30,7 +29,7 @@ RSpec.describe Lite::Address::Parser do
 
   describe '#formal' do
     it 'returns correct parsed attributes' do
-      addresses.each do |address, expected|
+      formal.each do |address, expected|
         addr = described_class.formal(address)
 
         expect(addr.intersection?).to eq(false)
