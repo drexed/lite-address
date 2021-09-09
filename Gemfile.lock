@@ -86,9 +86,9 @@ DEPENDENCIES
   bundler
   fasterer
   lite-address!
-  rake (~> 13.0)
-  rspec (~> 3.0)
-  rubocop (~> 1.7)
+  rake
+  rspec
+  rubocop
   rubocop-performance
   rubocop-rake
   rubocop-rspec
