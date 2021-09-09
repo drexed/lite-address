@@ -89,6 +89,9 @@ module Lite
       end
       # rubocop:enable Metrics/MethodLength
 
+      alias state_codes subdivision_codes
+      alias state_names subdivision_names
+
     end
   end
 end

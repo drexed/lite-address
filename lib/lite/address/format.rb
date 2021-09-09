@@ -3,27 +3,50 @@
 module Lite
   module Address
 
-    DETAIL_KEYS = %i[
-      number street street_type unit unit_prefix suffix prefix city
-      state postal_code postal_code_ext street2 street_type2 suffix2
-      prefix2 redundant_street_type
+    FORMAT_KEYS = %i[
+      number
+      street street2
+      street_type street_type2 redundant_street_type
+      unit_prefix unit
+      prefix prefix2
+      suffix suffix2
+      city
+      state
+      postal_code postal_code_ext
+      country list regexp
     ].freeze
 
-    class Details < Struct.new(*DETAIL_KEYS, keyword_init: true)
+    class Format < Struct.new(*FORMAT_KEYS, keyword_init: true)
 
-      def full_postal_code
-        return if postal_code.nil?
-
-        [postal_code, postal_code_ext].compact.join('-')
+      def country_code
+        country.code
       end
 
-      def state_name
-        Lite::Address::US::STATE_NAMES[state]&.capitalize
+      def country_name
+        country.name
       end
 
       def intersection?
         !!street && !!street2
       end
+
+
+
+
+
+
+
+      def full_postal_code
+        return if postal_code.nil?
+
+        @full_postal_code ||= [postal_code, postal_code_ext].compact.join('-')
+      end
+
+      def state_name
+        list.state_names[state]&.capitalize
+      end
+
+
 
       def line1(str = String.new)
         parts = intersection? ? intersection_line1 : address_line1
@@ -37,7 +60,7 @@ module Lite
       end
 
       def to_h
-        Lite::Address::DETAIL_KEYS.each_with_object({}) do |key, hash|
+        Lite::Address::FORMAT_KEYS.each_with_object({}) do |key, hash|
           hash[key] = public_send(key)
         end
       end
@@ -54,6 +77,8 @@ module Lite
         to_s == other.to_s
       end
 
+      alias state_code state
+
       private
 
       def address_line1
@@ -64,7 +89,7 @@ module Lite
         parts << street_type unless redundant_street_type
         parts << suffix
         parts << unit_prefix
-        # follow guidelines: http://pe.usps.gov/cpim/ftp/pubs/Pub28/pub28.pdf pg28
+        # http://pe.usps.gov/cpim/ftp/pubs/Pub28/pub28.pdf pg28
         parts << (unit_prefix ? unit : "\# #{unit}") if unit
         parts
       end

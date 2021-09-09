@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Lite::Address::Details do
+RSpec.describe Lite::Address::Regexp do
   let(:addresses) do
     {
       '1005 Gravenstein Hwy 95472' => {
@@ -242,9 +242,9 @@ RSpec.describe Lite::Address::Details do
 
   describe '#struct' do
     context 'when checking by address type' do
-      it 'returns expected results for addresses' do
+      it 'returns expected results for formal addresses' do
         addresses.each_pair do |address, expected|
-          addr = Lite::Address::US.parse(address)
+          addr = Lite::Address::Parser.any(address)
           expected[:to_s] ||= fallback_expected_line(expected)
 
           expect(addr.line1).to eq(expected[:line1])
@@ -253,9 +253,9 @@ RSpec.describe Lite::Address::Details do
         end
       end
 
-      it 'returns expected results for intersections' do
+      it 'returns expected results for intersectional addresses' do
         intersections.each_pair do |address, expected|
-          addr = Lite::Address::US.parse_intersection(address)
+          addr = Lite::Address::Parser.intersectional(address)
           expected[:to_s] ||= fallback_expected_line(expected)
 
           expect(addr.line1).to eq(expected[:line1])
@@ -266,7 +266,7 @@ RSpec.describe Lite::Address::Details do
 
       it 'returns expected results for informal addresses' do
         informal_addresses.each_pair do |address, expected|
-          addr = Lite::Address::US.parse_informal_address(address)
+          addr = Lite::Address::Parser.informal(address)
           expected[:to_s] ||= fallback_expected_line(expected)
 
           expect(addr.line1).to eq(expected[:line1])
@@ -279,28 +279,28 @@ RSpec.describe Lite::Address::Details do
     context 'when responding to to_s' do
       it 'returns with no line2' do
         address = '45 Quaker Ave, Ste 105'
-        addr = Lite::Address::US.parse(address)
+        addr = Lite::Address::Parser.any(address)
 
         expect(addr.to_s).to eq('45 Quaker Ave Suite 105')
       end
 
       it 'returns with valid addresses with zip ext' do
         address = '7800 Mill Station Rd Sebastopol CA 95472-1234'
-        addr = Lite::Address::US.parse(address)
+        addr = Lite::Address::Parser.any(address)
 
         expect(addr.to_s).to eq('7800 Mill Station Rd, Sebastopol, CA 95472-1234')
       end
 
       it 'returns for line1' do
         address = '7800 Mill Station Rd Sebastopol CA 95472-1234'
-        addr = Lite::Address::US.parse(address)
+        addr = Lite::Address::Parser.any(address)
 
         expect(addr.line1).to eq(addr.to_s(:line1))
       end
 
       it 'returns for line2' do
         address = '7800 Mill Station Rd Sebastopol CA 95472-1234'
-        addr = Lite::Address::US.parse(address)
+        addr = Lite::Address::Parser.any(address)
 
         expect(addr.line2).to eq(addr.to_s(:line2))
       end
@@ -309,21 +309,21 @@ RSpec.describe Lite::Address::Details do
     context 'when checking postal codes' do
       it 'returns 9 digits' do
         address = '7800 Mill Station Rd Sebastopol CA 95472-1234'
-        addr = Lite::Address::US.parse(address)
+        addr = Lite::Address::Parser.any(address)
 
         expect(addr.full_postal_code).to eq('95472-1234')
       end
 
       it 'returns 5 digits' do
         address = '7800 Mill Station Rd Sebastopol CA 95472'
-        addr = Lite::Address::US.parse(address)
+        addr = Lite::Address::Parser.any(address)
 
         expect(addr.full_postal_code).to eq('95472')
       end
 
       it 'returns nil' do
         address = '7800 Mill Station Rd Sebastopol CA'
-        addr = Lite::Address::US.parse(address)
+        addr = Lite::Address::Parser.any(address)
 
         expect(addr.full_postal_code).to be_nil
       end

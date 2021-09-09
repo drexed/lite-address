@@ -15,34 +15,36 @@ module Lite
 
       class << self
 
-        def parse(passed_address, args = {})
-          instance = new(passed_address, country_code: args.delete(:country_code) || 'US')
-          instance.parse(args)
+        %i[any formal informal intersectional].each do |method_name|
+          define_method(method_name) do |address, args = {}|
+            instance = new(address, country_code: args.delete(:country_code) || 'US')
+            instance.public_send(method_name, args)
+          end
         end
 
       end
 
-      def parse(args = {})
-        return parse_intersectional_address(args) if regexp.corner.match(address)
+      def any(args = {})
+        return intersectional(args) if regexp.corner.match(address)
 
-        parse_formal_address(args) || parse_informal_address(args)
+        formal(args) || informal(args)
       end
 
-      def parse_formal_address(args = {})
+      def formal(args = {})
         return unless match = regexp.formal_address.match(address)
 
         map = match_map(match)
         generate_address(map, args)
       end
 
-      def parse_informal_address(args = {})
+      def informal(args = {})
         return unless match = regexp.informal_address.match(address)
 
         map = match_map(match)
         generate_address(map, args)
       end
 
-      def parse_intersectional_address(args = {})
+      def intersectional(args = {})
         return unless match = regexp.intersectional_address.match(address)
 
         map = match_map(match)
@@ -94,7 +96,7 @@ module Lite
         return unless map[part] && (!map["#{part}2"] || (map[part] == map["#{part}2"]))
 
         type = map[part].dup
-        return unless type.gsub!(/s\W*$/i, '') && (/\A#{regexp.send(part)}\z/io =~ type)
+        return unless type.gsub!(/s\W*$/i, '') && (/\A#{regexp.public_send(part)}\z/io =~ type)
 
         map[part] = map["#{part}2"] = type
       end
@@ -190,7 +192,8 @@ module Lite
         address_fix_dirty_ordinals(map)
         address_normalize_parts(map)
 
-        Lite::Address::Details.new(map)
+        map.merge!(country: country, list: list, regexp: regexp)
+        Lite::Address::Format.new(map)
       end
 
     end
