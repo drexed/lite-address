@@ -137,6 +137,10 @@ RSpec.describe Lite::Address::Details do
         line1: '44 Canal Center Plz Suite 500',
         line2: 'Alexandria, VA 22314'
       },
+      "205.5 6th St, Coralville, IA 52241" => {
+        line1: "205.5 6th St",
+        line2: "Coralville, IA 52241"
+      },
       '11081 N State Highway 27/77, Hayward, WI 54843' => {
         line1: '11081 N State Highway 27/77',
         line2: 'Hayward, WI 54843'

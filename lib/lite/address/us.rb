@@ -50,7 +50,7 @@ module Lite
 
       # Utah and Wisconsin have a more elaborate system of block numbering
       # http://en.wikipedia.org/wiki/House_number#Block_numbers
-      NUMBER_REGEXP = /(?<number>(n|s|e|w)?\d+-?\d*)(?=\D)/ix
+      NUMBER_REGEXP = /(?<number>(n|s|e|w)?\d+[\.-]?\d*)(?=\D)/ix
 
       # http://pe.usps.com/text/pub28/pub28c2_003.htm
       UNIT_ABBREVIATIONS_NUMBERED = {
@@ -257,10 +257,10 @@ module Lite
           input.each do |key, string|
             string.strip!
 
-            if key == 'street'
-              string.gsub!(%r{[^\w\s\-\#&/]}, '')
-            else
-              string.gsub!(/[^\w\s\-\#&]/, '')
+            case key
+            when 'street' then string.gsub!(%r{[^\w\s\-\#&/]}, '')
+            when 'number' then string.gsub!(%r{[^\w\s\-\#\&\/\.]}, '')
+            else string.gsub!(/[^\w\s\-\#&]/, '')
             end
           end
 
