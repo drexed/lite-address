@@ -163,21 +163,26 @@ module Lite
           next if !street || !street_type
 
           type_regexp = list.street_type_regexps[street_type.downcase]
-          map.delete("street_type#{suffix}") if type_regexp.match(street)
+          next unless type_regexp.match(street)
+
+          map.delete("street_type#{suffix}")
         end
       end
 
       def address_expand_cardinals(map)
-        map['city']&.gsub!(/^(#{regexp.cardinal_code})\s+(?=\S)/o) do |match|
+        return unless map['city']
+
+        map['city'].gsub!(/^(#{regexp.cardinal_code})\s+(?=\S)/o) do |match|
           "#{list.cardinal_codes[match[0].upcase]} "
         end
       end
 
       def address_fix_dirty_ordinals(map)
-        # Sometimes parcel data will have addresses like
-        # "1 1ST ST" as "1 1 ST ST"
-        map['street']&.gsub!(/\A(\d+\s+st|\d+\s+nd|\d+\s+rd|\d+\s+th)\z/i) do |_match|
-          map['street'].gsub(/\s+/, '')
+        # Sometimes parcel data will have addresses like "1 1ST ST" as "1 1 ST ST"
+        return unless map['street']
+
+        map['street'].gsub!(/\A(\d+\s+st|\d+\s+nd|\d+\s+rd|\d+\s+th)\z/i) do |match|
+          match.gsub!(/\s+/, '')
         end
       end
 
