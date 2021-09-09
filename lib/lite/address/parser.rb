@@ -1,31 +1,27 @@
 # frozen_string_literal: true
 
+require 'countries' unless defined?(ISO3166::Country)
 require 'yaml' unless defined?(YAML)
 
 module Lite
   module Address
-    class US
+    class Parser
 
       # NOTE: List constants
 
       CARDINAL_TYPES = YAML.load_file(
-        File.expand_path('maps/cardinal_types.yml', File.dirname(__FILE__))
+        File.expand_path('types/cardinal.yml', File.dirname(__FILE__))
       ).freeze
       CARDINAL_CODES = CARDINAL_TYPES.invert.freeze
 
       STREET_TYPES = YAML.load_file(
-        File.expand_path('maps/street_types.yml', File.dirname(__FILE__))
+        File.expand_path('types/street.yml', File.dirname(__FILE__))
       ).freeze
 
-      STATE_CODES = YAML.load_file(
-        File.expand_path('maps/us/states.yml', File.dirname(__FILE__))
-      ).freeze
+      STATE_CODES = ISO3166::Country.new('US').subdivisions.each_with_object({}) do |(code, subdivision), hash|
+        hash[subdivision.name.downcase] = code
+      end.freeze
       STATE_NAMES = STATE_CODES.invert.freeze
-
-      STATE_FIPS = YAML.load_file(
-        File.expand_path('maps/us/fips.yml', File.dirname(__FILE__))
-      ).freeze
-      FIPS_STATES = STATE_FIPS.invert.freeze
 
       NORMALIZATION_MAP = {
         'prefix' => CARDINAL_TYPES,
@@ -189,126 +185,178 @@ module Lite
         \z  # right up to end of string
       /ix
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      attr_reader :address, :country_code
+
+      def initialize(address, country_code: 'US')
+        @address = sanitize_address(address)
+        @country_code = sanitize_country_code(country_code)
+      end
+
       class << self
 
-        def parse(address, args = {})
-          location = preclean_address(address)
-          return parse_intersection(location, args) if CORNER_REGEXP.match(location)
-
-          parse_address(location, args) || parse_informal_address(location, args)
+        def call(passed_address, args = {})
+          instance = new(passed_address, country_code: args.delete(:country_code) || 'US')
+          instance.call(args)
         end
 
-        def parse_address(address, args = {})
-          return unless match = ADDRESS_REGEXP.match(preclean_address(address))
+      end
 
-          to_address(match_to_hash(match), args)
+      def call(args = {})
+        return parse_intersectional_address(args) if CORNER_REGEXP.match(address)
+
+        parse_formal_address(args) || parse_informal_address(args)
+      end
+
+      def parse_formal_address(args = {})
+        return unless match = ADDRESS_REGEXP.match(address)
+
+        map = match_map(match)
+        generate_address(map, args)
+      end
+
+      def parse_informal_address(args = {})
+        return unless match = INFORMAL_ADDRESS_REGEXP.match(address)
+
+        map = match_map(match)
+        generate_address(map, args)
+      end
+
+      def parse_intersectional_address(args = {})
+        return unless match = INTERSECTION_REGEXP.match(address)
+
+        map = match_map(match)
+        intersectional_submatch(match, map, 'street')
+        intersectional_submatch(match, map, 'street_type')
+        intersectional_rematch(match, map, 'street_type')
+
+        generate_address(map, args)
+      end
+
+      private
+
+      def sanitize_address(value)
+        value.delete_prefix('(').delete_suffix(')')
+      end
+
+      def sanitize_country_code(value)
+        value.to_s.upcase
+      end
+
+      def match_map(match)
+        match.names.each_with_object({}) do |name, hash|
+          hash[name] = match[name] if match[name]
         end
+      end
 
-        def parse_informal_address(address, args = {})
-          return unless match = INFORMAL_ADDRESS_REGEXP.match(preclean_address(address))
+      def intersectional_submatch(match, map, part)
+        parts = INTERSECTION_REGEXP.named_captures[part].map { |i| match[i.to_i] }.compact
+        map[part] = parts[0] if parts[0]
+        map["#{part}2"] = parts[1] if parts[1]
+      end
 
-          to_address(match_to_hash(match), args)
-        end
+      def intersectional_rematch(match, map, part)
+        return unless map[part] && (!map["#{part}2"] || (map[part] == map["#{part}2"]))
 
-        def parse_intersection(address, args = {})
-          return unless match = INTERSECTION_REGEXP.match(preclean_address(address))
+        type = map[part].dup
+        # TODO: convert regexp to use send("regexp_#{part}")
+        return unless type.gsub!(/s\W*$/i, '') && (/\A#{STREET_TYPE_REGEXP}\z/io =~ type)
 
-          hash = match_to_hash(match)
-          intersection_parts(match, hash, 'street')
-          intersection_parts(match, hash, 'street_type')
+        map[part] = map["#{part}2"] = type
+      end
 
-          if hash['street_type'] && (!hash['street_type2'] || (hash['street_type'] == hash['street_type2']))
-            type = hash['street_type'].dup
+      def address_strip_chars(map)
+        map.each do |key, string|
+          string.strip!
 
-            if type.gsub!(/s\W*$/i, '') && (/\A#{STREET_TYPE_REGEXP}\z/io =~ type)
-              hash['street_type'] = hash['street_type2'] = type
-            end
-          end
-
-          to_address(hash, args)
-        end
-
-        private
-
-        def preclean_address(address)
-          address.delete_prefix('(').delete_suffix(')')
-        end
-
-        def match_to_hash(match)
-          match.names.each_with_object({}) do |name, hash|
-            value = match[name]
-            next unless value
-
-            hash[name] = value
+          if key == 'number'
+            string.gsub!(%r{[^\w\s\-\#&/.]}, '')
+          else
+            string.gsub!(%r{[^\w\s\-\#&/]}, '')
           end
         end
+      end
 
-        def intersection_parts(match, hash, part)
-          parts = INTERSECTION_REGEXP.named_captures[part].map { |i| match[i.to_i] }.compact
-          hash[part] = parts[0] if parts[0]
-          hash["#{part}2"] = parts[1] if parts[1]
+      def address_redundantize_street_type(map)
+        map['redundant_street_type'] = false
+
+        if map['street'] && !map['street_type']
+          match = STREET_REGEXP.match(map['street'])
+          map['street_type'] = match['street_type'] if match
+          map['redundant_street_type'] = true
         end
+      end
 
-        def to_address(input, args)
-          # strip off some punctuation and whitespace
-          input.each do |key, string|
-            string.strip!
-
-            case key
-            when 'number' then string.gsub!(%r{[^\w\s\-\#&/.]}, '')
-            else string.gsub!(%r{[^\w\s\-\#&/]}, '')
-            end
-          end
-
-          input['redundant_street_type'] = false
-          if input['street'] && !input['street_type']
-            match = STREET_REGEXP.match(input['street'])
-            input['street_type'] = match['street_type'] if match
-            input['redundant_street_type'] = true
-          end
-
-          ## abbreviate unit prefixes
-          UNIT_ABBREVIATIONS.each_pair do |regex, abbr|
-            regex.match(input['unit_prefix']) { |_m| input['unit_prefix'] = abbr }
-          end
-
-          NORMALIZATION_MAP.each_pair do |key, map|
-            next unless input[key]
-
-            mapping = map[input[key].downcase]
-            input[key] = mapping if mapping
-          end
-
-          if args[:avoid_redundant_street_type]
-            ['', '1', '2'].each do |suffix|
-              street = input["street#{suffix}"]
-              street_type = input["street_type#{suffix}"]
-              next if !street || !street_type
-
-              type_regexp = STREET_TYPE_MATCHES[street_type.downcase]
-              input.delete("street_type#{suffix}") if type_regexp.match(street)
-            end
-          end
-
-          # attempt to expand CARDINAL_TYPES prefixes on place names
-          input['city']&.gsub!(/^(#{CARDINAL_CODE_REGEXP})\s+(?=\S)/o) do |match|
-            "#{CARDINAL_CODES[match[0].upcase]} "
-          end
-
-          # Fix cases with a dirty ordinal indicator:
-          # Sometimes parcel data will have addresses like
-          # "1 1ST ST" as "1 1 ST ST"
-          input['street']&.gsub!(/\A(\d+\s+st|\d+\s+nd|\d+\s+rd|\d+\s+th)\z/i) do |_match|
-            input['street'].gsub(/\s+/, '')
-          end
-
-          %w[street street_type street2 street_type2 city unit_prefix].each do |k|
-            input[k] = input[k].split.map(&:capitalize).join(' ') if input[k]
-          end
-
-          Lite::Address::Details.new(input)
+      def address_abbreviate_unit_prefixes(map)
+        UNIT_ABBREVIATIONS.each_pair do |regex, abbr|
+          regex.match(map['unit_prefix']) { |_m| map['unit_prefix'] = abbr }
         end
+      end
 
+      def address_normalize_values(map)
+        NORMALIZATION_MAP.each do |key, hash|
+          next unless map_key = map[key]
+
+          mapping = hash[map_key.downcase]
+          map[key] = mapping if mapping
+        end
+      end
+
+      def address_avoid_redundant_street_type(map)
+        ['', '1', '2'].each do |suffix|
+          street = map["street#{suffix}"]
+          street_type = map["street_type#{suffix}"]
+          next if !street || !street_type
+
+          type_regexp = STREET_TYPE_MATCHES[street_type.downcase]
+          map.delete("street_type#{suffix}") if type_regexp.match(street)
+        end
+      end
+
+      def address_expand_cardinals(map)
+        map['city']&.gsub!(/^(#{CARDINAL_CODE_REGEXP})\s+(?=\S)/o) do |match|
+          "#{CARDINAL_CODES[match[0].upcase]} "
+        end
+      end
+
+      def address_fix_dirty_ordinals(map)
+        # Sometimes parcel data will have addresses like
+        # "1 1ST ST" as "1 1 ST ST"
+        map['street']&.gsub!(/\A(\d+\s+st|\d+\s+nd|\d+\s+rd|\d+\s+th)\z/i) do |_match|
+          map['street'].gsub(/\s+/, '')
+        end
+      end
+
+      def address_normalize_parts(map)
+        %w[street street_type street2 street_type2 city unit_prefix].each do |k|
+          map[k] = map[k].split.map(&:capitalize).join(' ') if map[k]
+        end
+      end
+
+      def generate_address(map, args = {})
+        address_strip_chars(map)
+        address_redundantize_street_type(map)
+        address_abbreviate_unit_prefixes(map)
+        address_normalize_values(map)
+        address_avoid_redundant_street_type(map) if args[:avoid_redundant_street_type]
+        address_expand_cardinals(map)
+        address_fix_dirty_ordinals(map)
+        address_normalize_parts(map)
+
+        Lite::Address::Details.new(map)
       end
 
     end

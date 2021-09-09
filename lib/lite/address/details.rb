@@ -17,10 +17,6 @@ module Lite
         [postal_code, postal_code_ext].compact.join('-')
       end
 
-      def state_fips
-        Lite::Address::US::FIPS_STATES[state]
-      end
-
       def state_name
         Lite::Address::US::STATE_NAMES[state]&.capitalize
       end

@@ -2,4 +2,4 @@
 
 require 'lite/address/version'
 require 'lite/address/details'
-require 'lite/address/us'
+require 'lite/address/parser'
