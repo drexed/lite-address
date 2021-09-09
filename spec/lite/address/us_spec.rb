@@ -368,22 +368,22 @@ RSpec.describe Lite::Address::US do
         city: 'East San Jose',
         street_type: 'St'
       },
-     'W12090 US HIGHWAY 10, Prescott, WI 54021' => { # Wisconsin Grid Address
-       :number=>'W12090',
-       :street=>'Us Highway 10',
-       :street_type=> 'Hwy',
-       :city=>'Prescott',
-       :state=>'WI',
-       :postal_code=>'54021',
-     },
-     'N5781 County Rd J, Ellsworth, WI 54011' => { # Redundant street name with Wisconsin Grid Address
-       :number=>'N5781',
-       :street=>'County Rd J',
-       :street_type=> 'Rd',
-       :city=>'Ellsworth',
-       :state=>'WI',
-       :postal_code=>'54011',
-     }
+      'W12090 US HIGHWAY 10, Prescott, WI 54021' => { # Wisconsin Grid Address
+        number: 'W12090',
+        street: 'Us Highway 10',
+        street_type: 'Hwy',
+        city: 'Prescott',
+        state: 'WI',
+        postal_code: '54021'
+      },
+      'N5781 County Rd J, Ellsworth, WI 54011' => { # Redundant street name with Wisconsin Grid Address
+        number: 'N5781',
+        street: 'County Rd J',
+        street_type: 'Rd',
+        city: 'Ellsworth',
+        state: 'WI',
+        postal_code: '54011'
+      }
     }
   end
   let(:intersections) do
@@ -524,7 +524,29 @@ RSpec.describe Lite::Address::US do
         street_type: 'Dr',
         prefix: 'S',
         unit_prefix: 'Lobby'
-      }
+      },
+      # '(PO Box 1288, Rome, GA, 30165)' => { # PO Box with surronding punctuation
+      #   postal_code: '30165',
+      #   city: 'Rome',
+      #   state: 'GA',
+      #   unit_prefix: 'Box',
+      #   unit: '1288'
+      # },
+      # 'PO Box 1288, Rome, GA, 30165' => { # PO Box
+      #   postal_code: '30165',
+      #   city: 'Rome',
+      #   state: 'GA',
+      #   unit_prefix: 'Box',
+      #   unit: '1288'
+      # },
+      # 'PO Box 1288, Rome, GA, 30165-1288' => { # PO Box with Plus 4
+      #   postal_code: '30165',
+      #   postal_code_ext: '1288',
+      #   city: 'Rome',
+      #   state: 'GA',
+      #   unit_prefix: 'Box',
+      #   unit: '1288'
+      # }
     }
   end
   let(:expected_failures) do
@@ -533,9 +555,7 @@ RSpec.describe Lite::Address::US do
       '1005 N Gravenstein Hwy Sebastopol CZ',
       'Gravenstein Hwy 95472',
       'E1005 Gravenstein Hwy 95472',
-      # "1005E Gravenstein Hwy 95472"
-      ## adding from original ruby test suite
-      'PO BOX 450, Chicago IL 60657'
+      '1005E Gravenstein Hwy 95472'
     ]
   end
   let(:parseable) do
@@ -563,7 +583,7 @@ RSpec.describe Lite::Address::US do
         addr = described_class.parse(address)
 
         expect(addr.intersection?).to eq(false)
-        compare_expected_to_actual_hash(expected, addr.to_h)
+        compare_expected_to_actual_hash(expected, addr.to_h, address)
       end
     end
 
@@ -571,7 +591,7 @@ RSpec.describe Lite::Address::US do
       informal_addresses.each_pair do |address, expected|
         addr = described_class.parse(address, informal: true)
 
-        compare_expected_to_actual_hash(expected, addr.to_h)
+        compare_expected_to_actual_hash(expected, addr.to_h, address)
       end
     end
 
@@ -579,8 +599,8 @@ RSpec.describe Lite::Address::US do
       intersections.each_pair do |address, expected|
         addr = described_class.parse(address)
 
-        expect(addr.intersection?).to(eq(true))
-        compare_expected_to_actual_hash(expected, addr.to_h)
+        expect(addr.intersection?).to eq(true)
+        compare_expected_to_actual_hash(expected, addr.to_h, address)
       end
     end
 
@@ -588,15 +608,13 @@ RSpec.describe Lite::Address::US do
       expected_failures.each do |address|
         addr = described_class.parse(address)
 
-        expect(!addr || !addr.state).to be_truthy
+        expect(!addr || !addr.state).to be_truthy, "failed: #{address.inspect}"
       end
     end
 
     it 'returns correct street type is nil for road redundant street types' do
-      addr = described_class.parse(
-        '36401 County Road 43, Eaton, CO 80615',
-        avoid_redundant_street_type: true
-      )
+      address = '36401 County Road 43, Eaton, CO 80615'
+      addr = described_class.parse(address, avoid_redundant_street_type: true)
       expected = {
         number: '36401',
         street: 'County Road 43',
@@ -606,7 +624,7 @@ RSpec.describe Lite::Address::US do
         street_type: nil
       }
 
-      compare_expected_to_actual_hash(expected, addr.to_h)
+      compare_expected_to_actual_hash(expected, addr.to_h, address)
     end
 
     it 'returns correct zip plus 4 with dash' do
@@ -622,10 +640,8 @@ RSpec.describe Lite::Address::US do
     end
 
     it 'returns correct informal parse normal address' do
-      addr = described_class.parse(
-        '2730 S Veitch St, Arlington, VA 222064444',
-        informal: true
-      )
+      address = '2730 S Veitch St, Arlington, VA 222064444'
+      addr = described_class.parse(address, informal: true)
       expected = {
         number: '2730',
         prefix: 'S',
@@ -637,14 +653,12 @@ RSpec.describe Lite::Address::US do
         street_type: 'St'
       }
 
-      compare_expected_to_actual_hash(expected, addr.to_h)
+      compare_expected_to_actual_hash(expected, addr.to_h, address)
     end
 
     it 'returns correct informal parse informal address' do
-      addr = described_class.parse(
-        '2730 S Veitch St',
-        informal: true
-      )
+      address = '2730 S Veitch St'
+      addr = described_class.parse(address, informal: true)
       expected = {
         number: '2730',
         prefix: 'S',
@@ -652,14 +666,12 @@ RSpec.describe Lite::Address::US do
         street_type: 'St'
       }
 
-      compare_expected_to_actual_hash(expected, addr.to_h)
+      compare_expected_to_actual_hash(expected, addr.to_h, address)
     end
 
     it 'returns correct informal parse informal address trailing words' do
-      addr = described_class.parse(
-        '2730 S Veitch St in the south of arlington',
-        informal: true
-      )
+      address = '2730 S Veitch St in the south of arlington'
+      addr = described_class.parse(address, informal: true)
       expected = {
         number: '2730',
         prefix: 'S',
@@ -667,7 +679,7 @@ RSpec.describe Lite::Address::US do
         street_type: 'St'
       }
 
-      compare_expected_to_actual_hash(expected, addr.to_h)
+      compare_expected_to_actual_hash(expected, addr.to_h, address)
     end
 
     it 'returns correct parse' do
@@ -684,9 +696,11 @@ RSpec.describe Lite::Address::US do
     end
   end
 
-  def compare_expected_to_actual_hash(expected, actual)
-    expected.each_pair do |expected_key, expected_value|
-      expect(expected_value).to eq(actual[expected_key])
+  def compare_expected_to_actual_hash(expected, actual, address)
+    expected.each_pair do |ekey, eval|
+      aval = actual[ekey]
+      fmsg = "failed #{ekey}: #{address.inspect} due to #{eval.inspect} != #{aval.inspect}"
+      expect(eval).to eq(aval), fmsg
     end
   end
 end

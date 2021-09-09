@@ -233,30 +233,33 @@ RSpec.describe Lite::Address::Details do
       it 'returns expected results for addresses' do
         addresses.each_pair do |address, expected|
           addr = Lite::Address::US.parse(address)
+          expected[:to_s] ||= fallback_expected_line(expected)
 
           expect(expected[:line1]).to eq(addr.line1)
           expect(expected[:line2]).to eq(addr.line2)
-          expect(expected[:to_s] || fallback_expected_line(expected)).to eq(addr.to_s)
+          expect(expected[:to_s]).to eq(addr.to_s)
         end
       end
 
       it 'returns expected results for intersections' do
         intersections.each_pair do |address, expected|
-          addr = Lite::Address::US.parse(address)
+          addr = Lite::Address::US.parse_intersection(address)
+          expected[:to_s] ||= fallback_expected_line(expected)
 
           expect(expected[:line1]).to eq(addr.line1)
           expect(expected[:line2]).to eq(addr.line2)
-          expect(expected[:to_s] || fallback_expected_line(expected)).to eq(addr.to_s)
+          expect(expected[:to_s]).to eq(addr.to_s)
         end
       end
 
       it 'returns expected results for informal addresses' do
         informal_addresses.each_pair do |address, expected|
           addr = Lite::Address::US.parse_informal_address(address)
+          expected[:to_s] ||= fallback_expected_line(expected)
 
           expect(expected[:line1]).to eq(addr.line1)
           expect(expected[:line2]).to eq(addr.line2)
-          expect(expected[:to_s] || fallback_expected_line(expected)).to eq(addr.to_s)
+          expect(expected[:to_s]).to eq(addr.to_s)
         end
       end
     end
@@ -316,9 +319,6 @@ RSpec.describe Lite::Address::Details do
   end
 
   def fallback_expected_line(expected)
-    [
-      expected[:line1],
-      expected[:line2]
-    ].reject(&:empty?).join(', ')
+    [expected[:line1], expected[:line2]].reject(&:empty?).join(', ')
   end
 end
