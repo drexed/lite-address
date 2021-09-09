@@ -26,7 +26,7 @@ module Lite
       end
 
       def intersection?
-        !street2.nil?
+        !!street && !!street2
       end
 
       def line1(str = String.new)
