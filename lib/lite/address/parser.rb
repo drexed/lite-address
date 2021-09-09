@@ -59,8 +59,12 @@ module Lite
         @country ||= ISO3166::Country.new(country_code)
       end
 
+      def list
+        @list ||= Lite::Address::List.new(country)
+      end
+
       def regexp
-        @regexp ||= Lite::Address::Regexp.new(country)
+        @regexp ||= Lite::Address::Regexp.new(list)
       end
 
       private
@@ -118,7 +122,7 @@ module Lite
       end
 
       def address_abbreviate_unit_prefixes(map)
-        regexp.unit_abbreviations.each do |regex, abbr|
+        list.unit_abbreviations.each do |regex, abbr|
           regex.match(map['unit_prefix']) do |_match|
             map['unit_prefix'] = abbr
           end
@@ -127,16 +131,16 @@ module Lite
 
       def address_normalize_values(map)
         {
-          'prefix' => regexp.cardinal_types,
-          'prefix1' => regexp.cardinal_types,
-          'prefix2' => regexp.cardinal_types,
-          'suffix' => regexp.cardinal_types,
-          'suffix1' => regexp.cardinal_types,
-          'suffix2' => regexp.cardinal_types,
-          'street_type' => regexp.street_types,
-          'street_type1' => regexp.street_types,
-          'street_type2' => regexp.street_types,
-          'state' => regexp.subdivision_names
+          'prefix' => list.cardinal_types,
+          'prefix1' => list.cardinal_types,
+          'prefix2' => list.cardinal_types,
+          'suffix' => list.cardinal_types,
+          'suffix1' => list.cardinal_types,
+          'suffix2' => list.cardinal_types,
+          'street_type' => list.street_types,
+          'street_type1' => list.street_types,
+          'street_type2' => list.street_types,
+          'state' => list.subdivision_names
         }.each do |key, hash|
           next unless map_key = map[key]
 
@@ -151,14 +155,14 @@ module Lite
           street_type = map["street_type#{suffix}"]
           next if !street || !street_type
 
-          type_regexp = regexp.street_type_matchers[street_type.downcase]
+          type_regexp = list.street_type_regexps[street_type.downcase]
           map.delete("street_type#{suffix}") if type_regexp.match(street)
         end
       end
 
       def address_expand_cardinals(map)
         map['city']&.gsub!(/^(#{regexp.cardinal_code})\s+(?=\S)/o) do |match|
-          "#{regexp.cardinal_codes[match[0].upcase]} "
+          "#{list.cardinal_codes[match[0].upcase]} "
         end
       end
 
