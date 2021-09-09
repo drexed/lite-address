@@ -33,12 +33,6 @@ module Lite
       # TODO: add ukey and to_ukey(address)
       # Expose more of the contry gem methods
 
-
-
-
-
-
-
       def full_postal_code
         return if postal_code.nil?
 
@@ -48,8 +42,6 @@ module Lite
       def state_name
         list.state_names[state]&.capitalize
       end
-
-
 
       def line1(str = String.new)
         parts = intersection? ? intersection_line1 : address_line1

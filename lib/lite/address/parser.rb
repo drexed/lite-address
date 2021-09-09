@@ -92,7 +92,7 @@ module Lite
         map["#{part}2"] = parts[1] if parts[1]
       end
 
-      def intersectional_rematch(match, map, part)
+      def intersectional_rematch(_match, map, part)
         return unless map[part] && (!map["#{part}2"] || (map[part] == map["#{part}2"]))
 
         type = map[part].dup

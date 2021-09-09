@@ -34,6 +34,10 @@ Metrics/ClassLength:
   Enabled: false
 Metrics/MethodLength:
   Enabled: false
+RSpec/ExampleLength:
+  Enabled: false
+RSpec/MultipleExpectations:
+  Enabled: false
 Style/ArgumentsForwarding:
   Enabled: false
 Style/Documentation:
