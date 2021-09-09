@@ -1,0 +1,22 @@
+---
+"#42 233 S Wacker Dr 60606":
+  :line1: '233 S Wacker Dr # 42'
+  :line2: '60606'
+Apt. 42, 233 S Wacker Dr 60606:
+  :line1: 233 S Wacker Dr Apt 42
+  :line2: '60606'
+'2730 S Veitch St #207':
+  :line1: '2730 S Veitch St # 207'
+  :line2: ''
+321 S. Washington:
+  :line1: 321 S Washington
+  :line2: ''
+233 S Wacker Dr lobby 60606:
+  :line1: 233 S Wacker Dr Lobby
+  :line2: '60606'
+"(233 S Wacker Dr lobby 60606)":
+  :line1: 233 S Wacker Dr Lobby
+  :line2: '60606'
+lt42 99 Some Road, Some City LA:
+  :line1: 99 Some Rd Lot 42
+  :line2: Some City, LA
