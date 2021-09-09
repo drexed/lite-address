@@ -1,7 +1,7 @@
 # Lite::Address
 
 Lite::Address is an address parser and formatter.
-Currently supports US and CA based addresses.
+Currently supports US based addresses only.
 
 ## Installation
 
@@ -52,16 +52,6 @@ address.postal_code_ext #=> 1846
 
 address = Lite::Address::Parse.parse("5904 Richmond Hwy Ste 340 Alexandria VA 223031864")
 address.postal_code_ext #=> 1846
-```
-
-To parse address for non US based addresses just pass a corresponding country code.
-
-```
-address = Lite::Address::Parse.parse("1 Blue Jays Way, Toronto, ON M5V 1J1, Canada", country_code: "CA")
-address.street        #=> Blue Jays
-address.number        #=> 1
-address.state_name    #=> Ontario
-...
 ```
 
 ## Formatting
