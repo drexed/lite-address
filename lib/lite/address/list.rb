@@ -41,9 +41,7 @@ module Lite
       end
 
       def subdivision_map
-        @subdivision_map ||= country.subdivisions.each_with_object({}) do |(code, sub), hash|
-          hash[code] = sub.name
-        end
+        @subdivision_map ||= country.subdivisions.transform_values(&:name)
       end
 
       def subdivision_names
@@ -92,6 +90,7 @@ module Lite
           'Upper' => /uppe?r/i
         }
       end
+
       alias state_codes subdivision_codes
       alias state_map subdivision_map
       alias state_names subdivision_names

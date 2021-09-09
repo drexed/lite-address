@@ -20,8 +20,6 @@ module Lite
 
     class Format < Struct.new(*FORMAT_KEYS, keyword_init: true)
 
-      # TODO: add formatting, ukey, and confidence support
-
       def country_code
         country.alpha2
       end
@@ -73,6 +71,10 @@ module Lite
         Snail.new(snail_params.merge(options)).to_s
       end
 
+      def to_ukey
+        Lite::Address::Ukey.generate(to_s)
+      end
+
       def ==(other)
         to_s == other.to_s
       end
@@ -82,7 +84,7 @@ module Lite
 
       private
 
-      # rubocop:disable Metrics/AbcSize
+      # rubocop:disable Metrics/AbcSize, Naming/VariableNumber
       def address_line1
         parts = []
         parts << number
@@ -98,11 +100,11 @@ module Lite
 
       def snail_params
         {
-          :line_1 => line1,
-          :city => city,
-          :region => state,
-          :postal_code => full_postal_code,
-          :country => country_code
+          line_1: line1,
+          city: city,
+          region: state,
+          postal_code: full_postal_code,
+          country: country_code
         }
       end
 
@@ -119,7 +121,7 @@ module Lite
         parts << suffix2
         parts
       end
-      # rubocop:enable Metrics/AbcSize
+      # rubocop:enable Metrics/AbcSize, Naming/VariableNumber
 
     end
 

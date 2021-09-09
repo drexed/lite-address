@@ -172,6 +172,15 @@ RSpec.describe Lite::Address::Format do
     end
   end
 
+  describe '.to_ukey' do
+    it 'returns a hash for the to_s address' do
+      address = '7800 Mill Station Rd Sebastopol CA 95472-1234'
+      addr = Lite::Address::Parser.any(address)
+
+      expect(addr.to_ukey).to eq('53ebda245e17a43014e8cc1773087af8')
+    end
+  end
+
   describe '.==' do
     it 'returns true' do
       address = '7800 Mill Station Rd Sebastopol CA 95472-1234'
