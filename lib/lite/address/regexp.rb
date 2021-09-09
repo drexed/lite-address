@@ -23,10 +23,11 @@ module Lite
 
       def cardinal_type
         @cardinal_type ||= begin
-          values = list.cardinal_types.keys
-          list.cardinal_types.values.sort { |a, b| b.size <=> a.size }.map do |c|
-            values << [::Regexp.quote(c.gsub(/(\w)/, '\1.')), ::Regexp.quote(c)]
+          values = list.cardinal_types.each_with_object([]) do |(key, val), array|
+            array << key
+            array << [::Regexp.quote(val.gsub(/(\w)/, '\1.')), ::Regexp.quote(val)]
           end
+
           ::Regexp.new(values.join('|'), ::Regexp::IGNORECASE)
         end
       end
@@ -40,44 +41,40 @@ module Lite
       end
 
       def formal_address
-        @formal_address ||= begin
-          /\A[^\w\x23]*
-            #{number} \W*
-            #{street}\W+
-            (?:#{unit}\W+)?
-            #{place}\W*\z
-          /ix
-        end
+        @formal_address ||= /\A[^\w\x23]*
+          #{number} \W*
+          #{street}\W+
+          (?:#{unit}\W+)?
+          #{place}\W*\z
+        /ix
       end
 
       def informal_address
-        @informal_address ||= begin
-          /\A\s*
-            (?:#{unit} #{separator} #{place})?
-            (?:#{number})? \W*
-            #{street} #{avoid_unit}
-            (?:#{unit} #{separator})?
-            (?:#{place})?
-          /ix
-        end
+        @informal_address ||= /\A\s*
+          (?:#{unit} #{separator} #{place})?
+          (?:#{number})? \W*
+          #{street} #{avoid_unit}
+          (?:#{unit} #{separator})?
+          (?:#{place})?
+        /ix
       end
 
       def intersectional_address
-        @intersectional_address ||= begin
-          /\A\W*
-            #{street}\W*?
-            \s+#{corner}\s+
-            #{street}\W+
-            #{place}\W*\z
-          /ix
-        end
+        @intersectional_address ||= /\A\W*
+          #{street}\W*?
+          \s+#{corner}\s+
+          #{street}\W+
+          #{place}\W*\z
+        /ix
       end
 
+      # rubocop:disable Lint/MixedRegexpCaptureTypes
       def number
         # Utah and Wisconsin have a more elaborate system of block numbering
         # http://en.wikipedia.org/wiki/House_number#Block_numbers
         @number ||= /(?<number>(n|s|e|w)?\d+[.-]?\d*)(?=\D)/ix
       end
+      # rubocop:enable Lint/MixedRegexpCaptureTypes
 
       def place
         @place ||= /(?:#{city_state}\W*)? (?:#{postal_code})?/ix
@@ -92,27 +89,25 @@ module Lite
       end
 
       def street
-        @street ||= begin
-          /(?:
-            (?:
-              (?<street> #{cardinal_type})\W+
-              (?<street_type> #{street_type})\b
-            )
-            | (?:(?<prefix> #{cardinal_type})\W+)?
-            (?:
-              (?<street> [^,]*\d)
-              (?:[^\w,]* (?<suffix> #{cardinal_type})\b)
-              |
-              (?<street> [^,]+)
-              (?:[^\w,]+(?<street_type> #{street_type})\b)
-              (?:[^\w,]+(?<suffix> #{cardinal_type})\b)?
-              |
-              (?<street> [^,]+?)
-              (?:[^\w,]+(?<street_type> #{street_type})\b)?
-              (?:[^\w,]+(?<suffix> #{cardinal_type})\b)?
-            )
-          )/ix
-        end
+        @street ||= /(?:
+          (?:
+            (?<street> #{cardinal_type})\W+
+            (?<street_type> #{street_type})\b
+          )
+          | (?:(?<prefix> #{cardinal_type})\W+)?
+          (?:
+            (?<street> [^,]*\d)
+            (?:[^\w,]* (?<suffix> #{cardinal_type})\b)
+            |
+            (?<street> [^,]+)
+            (?:[^\w,]+(?<street_type> #{street_type})\b)
+            (?:[^\w,]+(?<suffix> #{cardinal_type})\b)?
+            |
+            (?<street> [^,]+?)
+            (?:[^\w,]+(?<street_type> #{street_type})\b)?
+            (?:[^\w,]+(?<suffix> #{cardinal_type})\b)?
+          )
+        )/ix
       end
 
       def street_type
@@ -129,7 +124,7 @@ module Lite
         end
       end
 
-      def unit # TODO find better version
+      def unit
         @unit ||= %r{
           (?:
             (?:
@@ -142,11 +137,17 @@ module Lite
       end
 
       def unit_numbered
-        @unit_numbered ||= /(?<unit_prefix>#{list.unit_abbr_regexps_numbered_regexps.values.join('|')})(?![a-z])/ix
+        @unit_numbered ||= begin
+          values = list.unit_abbr_numbered_regexps.values
+          /(?<unit_prefix>#{values.join('|')})(?![a-z])/ix
+        end
       end
 
       def unit_unnumbered
-        @unit_unnumbered ||= /(?<unit_prefix>#{list.unit_abbr_regexps_unnumbered_regexps.values.join('|')})\b/ix
+        @unit_unnumbered ||= begin
+          values = list.unit_abbr_unnumbered_regexps.values
+          /(?<unit_prefix>#{values.join('|')})\b/ix
+        end
       end
 
     end

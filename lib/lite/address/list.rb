@@ -48,14 +48,12 @@ module Lite
 
       def unit_abbr_regexps
         # http://pe.usps.com/text/pub28/pub28c2_003
-        @unit_abbr_regexps ||= unit_abbr_regexps_numbered_regexps.merge(
-          unit_abbr_regexps_unnumbered_regexps
-        )
+        @unit_abbr_regexps ||= unit_abbr_numbered_regexps.merge(unit_abbr_unnumbered_regexps)
       end
 
       # rubocop:disable Metrics/MethodLength
-      def unit_abbr_regexps_numbered_regexps
-        @unit_abbr_regexps_numbered_regexps ||= {
+      def unit_abbr_numbered_regexps
+        @unit_abbr_numbered_regexps ||= {
           'Apt' => /(?:ap|dep)(?:ar)?t(?:me?nt)?/i,
           'PO Box' => /p\W*[om]\W*b(?:ox)?/i,
           'Bldg' => /bu?i?ldi?n?g/i,
@@ -76,8 +74,8 @@ module Lite
         }
       end
 
-      def unit_abbr_regexps_unnumbered_regexps
-        @unit_abbr_regexps_unnumbered_regexps ||= {
+      def unit_abbr_unnumbered_regexps
+        @unit_abbr_unnumbered_regexps ||= {
           'Basement' => /ba?se?me?n?t/i,
           'Front' => /fro?nt/i,
           'Lobby' => /lo?bby/i,

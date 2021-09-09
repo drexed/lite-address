@@ -30,6 +30,10 @@ Metrics/BlockLength:
   Exclude:
     - 'spec/**/**/*'
     - '*.gemspec'
+Metrics/ClassLength:
+  Enabled: false
+Metrics/MethodLength:
+  Enabled: false
 Style/ArgumentsForwarding:
   Enabled: false
 Style/Documentation:
