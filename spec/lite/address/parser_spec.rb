@@ -602,7 +602,7 @@ RSpec.describe Lite::Address::Parser do
   describe '#parse' do
     it 'returns correct address parsing' do
       addresses.each_pair do |address, expected|
-        addr = described_class.call(address)
+        addr = described_class.parse(address)
 
         expect(addr.intersection?).to eq(false)
         compare_expected_to_actual_hash(expected, addr.to_h, address)
@@ -611,7 +611,7 @@ RSpec.describe Lite::Address::Parser do
 
     it 'returns correct informal address parsing' do
       informal_addresses.each_pair do |address, expected|
-        addr = described_class.call(address, informal: true)
+        addr = described_class.parse(address, informal: true)
 
         compare_expected_to_actual_hash(expected, addr.to_h, address)
       end
@@ -619,7 +619,7 @@ RSpec.describe Lite::Address::Parser do
 
     it 'returns correct intersection address parsing' do
       intersections.each_pair do |address, expected|
-        addr = described_class.call(address)
+        addr = described_class.parse(address)
 
         expect(addr.intersection?).to eq(true)
         compare_expected_to_actual_hash(expected, addr.to_h, address)
@@ -628,7 +628,7 @@ RSpec.describe Lite::Address::Parser do
 
     it 'returns correct expected failures' do
       expected_failures.each do |address|
-        addr = described_class.call(address)
+        addr = described_class.parse(address)
 
         expect(!addr || !addr.state).to be_truthy, "failed: #{address.inspect}"
       end
@@ -636,7 +636,7 @@ RSpec.describe Lite::Address::Parser do
 
     it 'returns correct street type is nil for road redundant street types' do
       address = '36401 County Road 43, Eaton, CO 80615'
-      addr = described_class.call(address, avoid_redundant_street_type: true)
+      addr = described_class.parse(address, avoid_redundant_street_type: true)
       expected = {
         number: '36401',
         street: 'County Road 43',
@@ -650,20 +650,20 @@ RSpec.describe Lite::Address::Parser do
     end
 
     it 'returns correct zip plus 4 with dash' do
-      addr = described_class.call('2730 S Veitch St, Arlington, VA 22206-3333')
+      addr = described_class.parse('2730 S Veitch St, Arlington, VA 22206-3333')
 
       expect(addr.postal_code_ext).to eq('3333')
     end
 
     it 'returns correct zip plus 4 without dash' do
-      addr = described_class.call('2730 S Veitch St, Arlington, VA 222064444')
+      addr = described_class.parse('2730 S Veitch St, Arlington, VA 222064444')
 
       expect(addr.postal_code_ext).to eq('4444')
     end
 
     it 'returns correct informal parse normal address' do
       address = '2730 S Veitch St, Arlington, VA 222064444'
-      addr = described_class.call(address, informal: true)
+      addr = described_class.parse(address, informal: true)
       expected = {
         number: '2730',
         prefix: 'S',
@@ -680,7 +680,7 @@ RSpec.describe Lite::Address::Parser do
 
     it 'returns correct informal parse informal address' do
       address = '2730 S Veitch St'
-      addr = described_class.call(address, informal: true)
+      addr = described_class.parse(address, informal: true)
       expected = {
         number: '2730',
         prefix: 'S',
@@ -693,7 +693,7 @@ RSpec.describe Lite::Address::Parser do
 
     it 'returns correct informal parse informal address trailing words' do
       address = '2730 S Veitch St in the south of arlington'
-      addr = described_class.call(address, informal: true)
+      addr = described_class.parse(address, informal: true)
       expected = {
         number: '2730',
         prefix: 'S',
@@ -706,15 +706,15 @@ RSpec.describe Lite::Address::Parser do
 
     it 'returns correct parse' do
       parseable.each do |location|
-        addr = described_class.call(location)
+        addr = described_class.parse(location)
 
         expect(addr).not_to eq(nil)
       end
     end
 
     it 'returns incorrect parse' do
-      expect(described_class.call('&')).to eq(nil)
-      expect(described_class.call(' and ')).to eq(nil)
+      expect(described_class.parse('&')).to eq(nil)
+      expect(described_class.parse(' and ')).to eq(nil)
     end
   end
 
