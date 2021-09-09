@@ -18,6 +18,8 @@ module Lite
 
     class Format < Struct.new(*FORMAT_KEYS, keyword_init: true)
 
+      # TODO: add formatting, ukey, and confidence support
+
       def country_code
         country.alpha2
       end

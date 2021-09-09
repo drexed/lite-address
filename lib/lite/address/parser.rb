@@ -6,6 +6,10 @@ module Lite
   module Address
     class Parser
 
+      LOOKUPS = %i[any formal informal intersectional].freeze
+      CAPITALIZATION_PARTS = %w[street street_type street2 street_type2 city unit_prefix].freeze
+      STREET_POSITIONS = ['', '1', '2'].freeze
+
       attr_reader :address, :country_code
 
       def initialize(address, country_code: 'US')
@@ -15,7 +19,7 @@ module Lite
 
       class << self
 
-        %i[any formal informal intersectional].each do |method_name|
+        LOOKUPS.each do |method_name|
           define_method(method_name) do |address, args = {}|
             instance = new(address, country_code: args.delete(:country_code) || 'US')
             instance.public_send(method_name, args)
@@ -157,7 +161,7 @@ module Lite
       end
 
       def address_avoid_redundant_street_type(map)
-        ['', '1', '2'].each do |suffix|
+        STREET_POSITIONS.each do |suffix|
           street = map["street#{suffix}"]
           street_type = map["street_type#{suffix}"]
           next if !street || !street_type
@@ -186,8 +190,8 @@ module Lite
         end
       end
 
-      def address_normalize_parts(map)
-        %w[street street_type street2 street_type2 city unit_prefix].each do |k|
+      def address_capitalize_parts(map)
+        CAPITALIZATION_PARTS.each do |k|
           map[k] = map[k].split.map(&:capitalize).join(' ') if map[k]
         end
       end
@@ -200,7 +204,7 @@ module Lite
         address_avoid_redundant_street_type(map) if args[:avoid_redundant_street_type]
         address_expand_cardinals(map)
         address_fix_dirty_ordinals(map)
-        address_normalize_parts(map)
+        address_capitalize_parts(map)
 
         map.merge!(country: country, list: list, regexp: regexp)
         Lite::Address::Format.new(map)
