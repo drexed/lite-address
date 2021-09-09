@@ -49,7 +49,7 @@ module Lite
 
       # Utah and Wisconsin have a more elaborate system of block numbering
       # http://en.wikipedia.org/wiki/House_number#Block_numbers
-      NUMBER_REGEXP = /(?<number>(n|s|e|w)?\d+[\.-]?\d*)(?=\D)/ix
+      NUMBER_REGEXP = /(?<number>(n|s|e|w)?\d+[.-]?\d*)(?=\D)/ix
 
       # http://pe.usps.com/text/pub28/pub28c2_003.htm
       UNIT_ABBREVIATIONS_NUMBERED = {
@@ -151,15 +151,15 @@ module Lite
           )
         )
       /ix
-      UNIT_REGEXP = /
+      UNIT_REGEXP = %r{
         (?:
           (?:
             (?:#{UNIT_PREFIX_NUMBERED_REGEXP} \W*)
             | (?<unit_prefix> \#)\W*
           )
-          (?<unit> [\w\/-]+)
+          (?<unit> [\w/-]+)
         ) | #{UNIT_PREFIX_UNNUMBERED_REGEXP}
-      /ix
+      }ix
       INTERSECTION_REGEXP = /\A\W*
         #{STREET_REGEXP}\W*?
         \s+#{CORNER_REGEXP}\s+
@@ -255,9 +255,8 @@ module Lite
             string.strip!
 
             case key
-            when 'street' then string.gsub!(%r{[^\w\s\-\#&/]}, '')
-            when 'number' then string.gsub!(%r{[^\w\s\-\#\&\/\.]}, '')
-            else string.gsub!(/[^\w\s\-\#&]/, '')
+            when 'number' then string.gsub!(%r{[^\w\s\-\#&/.]}, '')
+            else string.gsub!(%r{[^\w\s\-\#&/]}, '')
             end
           end
 

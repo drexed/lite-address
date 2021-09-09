@@ -101,6 +101,10 @@ RSpec.describe Lite::Address::Details do
         line1: '100 SE Washington Ave',
         line2: 'Minneapolis, MN'
       },
+      '6641 N 2200 W Apt D/201 Park City, UT 84098' => {
+        line1: '6641 N 2200 W Apt D/201',
+        line2: 'Park City, UT 84098'
+      },
       '3813 1/2 Some Road, Los Angeles, CA' => {
         line1: '3813 1/2 Some Rd',
         line2: 'Los Angeles, CA'
@@ -108,6 +112,10 @@ RSpec.describe Lite::Address::Details do
       '1 First St, e San Jose CA' => {
         line1: '1 First St',
         line2: 'East San Jose, CA'
+      },
+      '8225 W 30 1/2 St, St Louis Park, MN' => {
+        line1: '8225 W 30 1/2 St',
+        line2: 'St Louis Park, MN'
       },
       'lt42 99 Some Road, Some City LA' => {
         line1: '99 Some Rd Lot 42',
@@ -137,9 +145,9 @@ RSpec.describe Lite::Address::Details do
         line1: '44 Canal Center Plz Suite 500',
         line2: 'Alexandria, VA 22314'
       },
-      "205.5 6th St, Coralville, IA 52241" => {
-        line1: "205.5 6th St",
-        line2: "Coralville, IA 52241"
+      '205.5 6th St, Coralville, IA 52241' => {
+        line1: '205.5 6th St',
+        line2: 'Coralville, IA 52241'
       },
       '11081 N State Highway 27/77, Hayward, WI 54843' => {
         line1: '11081 N State Highway 27/77',

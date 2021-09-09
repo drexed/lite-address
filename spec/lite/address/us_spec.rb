@@ -214,6 +214,14 @@ RSpec.describe Lite::Address::US do
         city: 'Los Angeles',
         street_type: 'Rd'
       },
+      '8225 W 30 1/2 St, St Louis Park, MN' => {
+        number: '8225',
+        street: '30 1/2',
+        state: 'MN',
+        city: 'St Louis Park',
+        street_type: 'St',
+        prefix: 'W'
+      },
       '1 First St, e San Jose CA' => { # lower case city direction
         number: '1',
         street: 'First',
@@ -225,6 +233,20 @@ RSpec.describe Lite::Address::US do
         street_type: nil,
         number: '123',
         street: 'Maple',
+        state: 'NY',
+        city: 'Rochester'
+      },
+      '123 31 1/2 st Rochester, New York' => {
+        street_type: 'St',
+        number: '123',
+        street: '31 1/2',
+        state: 'NY',
+        city: 'Rochester'
+      },
+      '123 1/2 Dayton St Rochester, New York' => {
+        street_type: 'St',
+        number: '123',
+        street: '1/2 Dayton',
         state: 'NY',
         city: 'Rochester'
       },
@@ -524,7 +546,7 @@ RSpec.describe Lite::Address::US do
         street_type: 'Dr',
         prefix: 'S',
         unit_prefix: 'Lobby'
-      },
+      }
       # '(PO Box 1288, Rome, GA, 30165)' => { # PO Box with surronding punctuation
       #   postal_code: '30165',
       #   city: 'Rome',
