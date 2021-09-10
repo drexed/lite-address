@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'snail' unless defined?(Snail)
-
 module Lite
   module Address
 
@@ -67,8 +65,10 @@ module Lite
         end
       end
 
-      def to_snail(options = {})
-        Snail.new(snail_params.merge(options)).to_s
+      def to_snail(prefixes: [], include_country: false)
+        prefixes.push(line1, line2)
+        prefixes.push(country_name) if include_country
+        prefixes.compact.join("\n")
       end
 
       def to_ukey
@@ -84,7 +84,7 @@ module Lite
 
       private
 
-      # rubocop:disable Metrics/AbcSize, Naming/VariableNumber
+      # rubocop:disable Metrics/AbcSize
       def address_line1
         parts = []
         parts << number
@@ -96,16 +96,6 @@ module Lite
         # http://pe.usps.gov/cpim/ftp/pubs/Pub28/pub28.pdf pg28
         parts << (unit_prefix ? unit : "\# #{unit}") if unit
         parts
-      end
-
-      def snail_params
-        {
-          line_1: line1,
-          city: city,
-          region: state,
-          postal_code: full_postal_code,
-          country: country_code
-        }
       end
 
       def intersection_line1
@@ -121,7 +111,7 @@ module Lite
         parts << suffix2
         parts
       end
-      # rubocop:enable Metrics/AbcSize, Naming/VariableNumber
+      # rubocop:enable Metrics/AbcSize
 
     end
 

@@ -38,7 +38,6 @@ Gem::Specification.new do |spec|
   spec.require_paths = %w[lib]
 
   spec.add_dependency 'countries'
-  spec.add_dependency 'snail'
 
   spec.add_development_dependency 'bundler'
   spec.add_development_dependency 'fasterer'

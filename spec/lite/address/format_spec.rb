@@ -166,9 +166,25 @@ RSpec.describe Lite::Address::Format do
     it 'returns snail mail format' do
       address = '45 Quaker Ave, Ste 105, Queens, New York 33103-3242'
       addr = Lite::Address::Parser.any(address)
-      snail_addr = "John Doe\n45 Quaker Ave Suite 105\nQueens NY  33103-3242"
+      snail_addr = "45 Quaker Ave Suite 105\nQueens, NY 33103-3242"
 
-      expect(addr.to_snail(name: 'John Doe')).to eq(snail_addr)
+      expect(addr.to_snail).to eq(snail_addr)
+    end
+
+    it 'returns with prefixes' do
+      address = '45 Quaker Ave, Ste 105, Queens, New York 33103-3242'
+      addr = Lite::Address::Parser.any(address)
+      snail_addr = "John Doe\nFake Co.\n45 Quaker Ave Suite 105\nQueens, NY 33103-3242"
+
+      expect(addr.to_snail(prefixes: ['John Doe', 'Fake Co.'])).to eq(snail_addr)
+    end
+
+    it 'returns with country' do
+      address = '45 Quaker Ave, Ste 105, Queens, New York 33103-3242'
+      addr = Lite::Address::Parser.any(address)
+      snail_addr = "45 Quaker Ave Suite 105\nQueens, NY 33103-3242\nUnited States of America"
+
+      expect(addr.to_snail(include_country: true)).to eq(snail_addr)
     end
   end
 
